@@ -1,17 +1,25 @@
-const response = require('../helpers/standardRespond')
+const response = require('../helpers/standardRespond');
 
-exports.getAllUsers = (req, res) => {
-    return response(res, 'Message from standard get respones users')
-}
+const userModel = require('../models/users');
 
-exports.postAllUsers = (req, res) => {
-    return response(res, 'Message from standard post respones users')
-}
+// exports.getAllUsers = (req, res) => {
+//   return response(res, 'Message from standard get respones users');
+// };
 
-exports.putAllUsers = (req, res) => {
-    return response(res, 'Message from standard put respones users')
-}
+exports.getAllUsers = (req, res) =>{
+  userModel.getAllUsers ((result)=>{
+    return response(res, 'Message from standard get respones users', result);
+  });
+};
 
-exports.deleteAllUsers = (req, res) => {
-    return response(res, 'Message from standard delete respones users')
-}
+// exports.postAllUsers = (req, res) => {
+//   return response(res, 'Message from standard post respones users');
+// };
+
+// exports.putAllUsers = (req, res) => {
+//   return response(res, 'Message from standard put respones users');
+// };
+
+// exports.deleteAllUsers = (req, res) => {
+//   return response(res, 'Message from standard delete respones users');
+// };
