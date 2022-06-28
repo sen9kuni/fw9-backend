@@ -6,9 +6,9 @@ const userModel = require('../models/users');
 //   return response(res, 'Message from standard get respones users');
 // };
 
-exports.getAllUsers = (req, res) =>{
-  userModel.getAllUsers ((result)=>{
-    return response(res, 'Message from standard get respones users', result);
+exports.getAllUsers = (req, res)=>{
+  userModel.getAllUsers((results)=>{
+    return response(res, 'Message from standard get respones users', results);
   });
 };
 
