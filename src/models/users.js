@@ -29,3 +29,11 @@ exports.deleteUser = (id, cb)=>{
     cb(res.rows);
   });
 };
+
+exports.searchUserById = (id, cb)=>{
+  const q = 'SELECT * FROM users WHERE id=$1';
+  const val = [id];
+  db.query(q, val, (err, res)=>{
+    cb(res.rows);
+  });
+};

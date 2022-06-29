@@ -30,3 +30,10 @@ exports.deleteUser = (req, res)=>{
     return response(res, 'User deleted', results[0]);
   });
 };
+
+exports.searchUserById = (req, res)=>{
+  const {id} = req.params;
+  userModel.searchUserById(id, (results)=>{
+    return response(res, 'User search', results[0]);
+  });
+};
