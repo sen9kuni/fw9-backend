@@ -18,7 +18,6 @@ exports.updateTransactionType = (id, data, cb) => {
   const q = 'UPDATE transaction_type SET name=$1, description=$2 WHERE id=$3 RETURNING *';
   const val = [data.name, data.description, id];
   db.query(q, val, (err, res)=>{
-    console.log(res);
     cb(res.rows);
   });
 };
