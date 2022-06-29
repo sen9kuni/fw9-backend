@@ -3,6 +3,11 @@ const users = require('express').Router();
 const userControllers = require('../controllers/users');
 
 users.get('/', userControllers.getAllUsers);
+users.post('/', userControllers.createUser);
+users.patch('/:id', userControllers.editUser);
+users.delete('/:id', userControllers.deleteUser);
+
+
 // users.post('/', userControllers.postAllUsers);
 // users.put('/', userControllers.putAllUsers);
 // users.delete('/', userControllers.deleteAllUsers);
