@@ -21,3 +21,11 @@ exports.deleteProfile = (id, cb)=>{
     cb(res.rows);
   });
 };
+
+exports.searchTransactionById = (id, cb)=>{
+  const q = 'SELECT * FROM transactions WHERE id=$1';
+  const val = [id];
+  db.query(q, val, (err, res)=>{
+    cb(res.rows);
+  });
+};

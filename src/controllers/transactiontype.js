@@ -30,3 +30,10 @@ exports.deleteTransactionType = (req, res)=> {
     return response(res, 'Type transaction deleted', results[0]);
   });
 };
+
+exports.searchTransactionTypeById = (req, res)=>{
+  const {id} = req.params;
+  transactionTypeModel.searchTransactionTypeById(id, (results)=>{
+    return response(res, 'User search', results[0]);
+  });
+};

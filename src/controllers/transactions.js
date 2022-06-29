@@ -18,6 +18,13 @@ exports.createTransaction = (req, res)=>{
 exports.deleteTransaction = (req, res)=>{
   const {id} = req.params;
   transactionModel.deleteProfile(id, (results)=>{
-    return response(res, 'Profile deleted', results[0]);
+    return response(res, 'transaction deleted', results[0]);
+  });
+};
+
+exports.searchUserById = (req, res)=>{
+  const {id} = req.params;
+  transactionModel.searchTransactionById(id, (results)=>{
+    return response(res, 'transaction search', results[0]);
   });
 };

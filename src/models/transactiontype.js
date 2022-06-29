@@ -29,3 +29,11 @@ exports.deleteTransactionType = (id, cb)=> {
     cb(res.rows);
   });
 };
+
+exports.searchTransactionTypeById = (id, cb)=>{
+  const q = 'SELECT * FROM transaction_type WHERE id=$1';
+  const val = [id];
+  db.query(q, val, (err, res)=>{
+    cb(res.rows);
+  });
+};

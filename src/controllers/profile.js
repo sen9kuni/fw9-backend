@@ -27,3 +27,10 @@ exports.deleteProfile = (req, res)=>{
     return response(res, 'profile deleted', results[0]);
   });
 };
+
+exports.seacrhProfileById = (req, res)=>{
+  const {id} = req.params;
+  profileModel.searchProfileById(id, (results)=>{
+    return response(res, 'Profile search', results[0]);
+  });
+};
