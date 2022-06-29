@@ -1,17 +1,23 @@
 const response = require('../helpers/standardRespond');
 
+const transactionModel = require('../models/transactions');
+
 exports.getTransactions = (req, res) => {
-  return response(res, 'Message from standard get respones Transactions');
+  transactionModel.getAllTransactions((results)=>{
+    return response(res, 'Show transactions', results);
+  });
 };
 
-exports.postTransactions = (req, res) => {
-  return response(res, 'Message from standard post respones Transactions');
+
+exports.createTransaction = (req, res)=>{
+  transactionModel.createTransaction(req.body, (results)=>{
+    return response(res, 'Create transaction successfully', results[0]);
+  });
 };
 
-exports.putTransactions = (req, res) => {
-  return response(res, 'Message from standard put respones Transactions');
-};
-
-exports.deleteTransactions = (req, res) => {
-  return response(res, 'Message from standard delete respones Transactions');
+exports.deleteTransaction = (req, res)=>{
+  const {id} = req.params;
+  transactionModel.deleteProfile(id, (results)=>{
+    return response(res, 'Profile deleted', results[0]);
+  });
 };
