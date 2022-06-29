@@ -1,17 +1,29 @@
 const response = require('../helpers/standardRespond');
 
-exports.getProfile = (req, res) => {
-  return response(res, 'Message from standard get respones profile');
+const profileModel = require('../models/profile');
+
+exports.getAllProfile = (req, res)=>{
+  profileModel.getAllProfile((results)=>{
+    return response(res, 'Message from standard get respones users', results);
+  });
 };
 
-exports.postProfile = (req, res) => {
-  return response(res, 'Message from standard post respones profile');
+exports.createProfile = (req, res)=>{
+  profileModel.createProfile(req.body, (results)=>{
+    return response(res, 'Create profile successfully', results[0]);
+  });
 };
 
-exports.putProfile = (req, res) => {
-  return response(res, 'Message from standard put respones profile');
+exports.editProfile = (req, res)=>{
+  const {id} = req.params;
+  profileModel.updateProfile(id, req.body, (results)=>{
+    return response(res, 'Update user success!', results[0]);
+  });
 };
 
-exports.deleteProfile = (req, res) => {
-  return response(res, 'Message from standard delete respones profile');
+exports.deleteProfile = (req, res)=>{
+  const {id} = req.params;
+  profileModel.deleteProfile(id, (results)=>{
+    return response(res, 'profile deleted', results[0]);
+  });
 };
