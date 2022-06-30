@@ -1,6 +1,7 @@
 const response = require('../helpers/standardRespond');
-
 const transactionModel = require('../models/transactions');
+const { validationResult } = require('express-validator');
+// const errorResponse = require('../helpers/errorResponse');
 
 exports.getTransactions = (req, res) => {
   transactionModel.getAllTransactions((results)=>{
@@ -10,15 +11,35 @@ exports.getTransactions = (req, res) => {
 
 
 exports.createTransaction = (req, res)=>{
-  transactionModel.createTransaction(req.body, (results)=>{
-    return response(res, 'Create transaction successfully', results[0]);
+  const validation = validationResult(req);
+
+  if (!validation.isEmpty()) {
+    return response(res, 'Error occured', validation.array(), 400);
+  }
+
+  transactionModel.createTransaction(req.body, (err, results)=>{
+    if (err) {
+      return response(res, 'Error', null, 400);
+    } else {
+      return response(res, 'Create transaction successfully', results[0]);
+    }
   });
 };
 
 exports.editTransaction = (req, res)=> {
   const {id} = req.params;
-  transactionModel.updateTransaction(id, req.body, (results)=>{
-    return response(res, 'Update transaction success!', results[0]);
+  const validation = validationResult(req);
+
+  if (!validation.isEmpty()) {
+    return response(res, 'Error occured', validation.array(), 400);
+  }
+
+  transactionModel.updateTransaction(id, req.body, (err, results)=>{
+    if (err) {
+      return response(res, 'Error', null, 400);
+    } else {
+      return response(res, 'Create transaction successfully', results[0]);
+    }
   });
 };
 

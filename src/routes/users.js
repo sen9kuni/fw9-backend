@@ -4,15 +4,22 @@ const userControllers = require('../controllers/users');
 
 const { body } = require('express-validator');
 
+// var validator
 const createUserValidator = [
   body('email').isEmail().withMessage('Email format invalid'),
   body('username').isLength({min: 4}).withMessage('Username length minimal 4 character')
 ];
 
+const editUserValidator = [
+  body('email').isEmail().withMessage('Email format invalid'),
+  body('username').isLength({min: 4}).withMessage('Username length minimal 4 character')
+];
+// end var validator
+
 users.get('/', userControllers.getAllUsers);
 users.get('/:id',userControllers.searchUserById);
 users.post('/', ...createUserValidator, userControllers.createUser);
-users.patch('/:id', userControllers.editUser);
+users.patch('/:id', ...editUserValidator, userControllers.editUser);
 users.delete('/:id', userControllers.deleteUser);
 
 
