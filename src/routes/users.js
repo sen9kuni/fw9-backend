@@ -2,9 +2,16 @@ const users = require('express').Router();
 
 const userControllers = require('../controllers/users');
 
+const { body } = require('express-validator');
+
+const createUserValidator = [
+  body('email').isEmail().withMessage('Email format invalid'),
+  body('username').isLength({min: 4}).withMessage('Username length minimal 4 character')
+];
+
 users.get('/', userControllers.getAllUsers);
-users.get('/:id', userControllers.searchUserById);
-users.post('/', userControllers.createUser);
+users.get('/:id',userControllers.searchUserById);
+users.post('/', ...createUserValidator, userControllers.createUser);
 users.patch('/:id', userControllers.editUser);
 users.delete('/:id', userControllers.deleteUser);
 
