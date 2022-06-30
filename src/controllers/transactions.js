@@ -15,6 +15,13 @@ exports.createTransaction = (req, res)=>{
   });
 };
 
+exports.editTransaction = (req, res)=> {
+  const {id} = req.params;
+  transactionModel.updateTransaction(id, req.body, (results)=>{
+    return response(res, 'Update transaction success!', results[0]);
+  });
+};
+
 exports.deleteTransaction = (req, res)=>{
   const {id} = req.params;
   transactionModel.deleteProfile(id, (results)=>{
