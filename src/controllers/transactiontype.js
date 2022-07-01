@@ -19,11 +19,7 @@ exports.createTransactionType = (req, res)=> {
   
   transactionTypeModel.createTransactionType(req.body, (err, results)=>{
     if (err) {
-      if (err.code === '23505' && err.detail.includes('name')) {
-        const errorRes = errorResponse('Name already exists', 'email');
-        return response(res, 'Error', errorRes, 400);
-      }
-      return response(res, 'Error', null, 400);
+      return errorResponse(err, res);
     } else {
       return response(res, 'Create type transaction successfully', results[0]);
     }

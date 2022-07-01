@@ -19,14 +19,7 @@ exports.createUser = (req, res)=>{
 
   userModel.createUser(req.body, (err, results)=>{
     if (err) {
-      if (err.code === '23505' && err.detail.includes('email')) {
-        const errorRes = errorResponse('Email already exists', 'email');
-        return response(res, 'Error', errorRes, 400);
-      }else if(err.code === '23505' && err.detail.includes('username')){
-        const errorRes = errorResponse('Username already exists', 'username');
-        return response(res, 'Error', errorRes, 400);
-      }
-      return response(res, 'Error', null, 400);
+      return errorResponse(err, res);
     }else{
       return response(res, 'Create user successfully', results[0]);
     }

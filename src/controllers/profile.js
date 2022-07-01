@@ -18,14 +18,7 @@ exports.createProfile = (req, res)=>{
 
   profileModel.createProfile(req.body, (err, results)=>{
     if (err) {
-      if (err.code === '23505' && err.detail.includes('user_id')) {
-        const errorRes = errorResponse('User id already exists', 'User Id');
-        return response(res, 'Error', errorRes, 400);
-      }else if(err.code === '23505' && err.detail.includes('phonenumber')){
-        const errorRes = errorResponse('Phone number already exists', 'User Id');
-        return response(res, 'Error', errorRes, 400);
-      }
-      return response(res, 'Error', null, 400);
+      return errorResponse(err, res);
     } else {
       return response(res, 'Create profile successfully', results[0]);
     }
