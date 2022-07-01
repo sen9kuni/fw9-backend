@@ -35,22 +35,11 @@ exports.editProfile = (req, res)=>{
 
   profileModel.updateProfile(id, req.body, (err, results)=>{
     if (err) {
-      // if (err.code === '23505' && err.detail.includes('user_id')) {
-      //   const errorRes = errorResponse('User id already exists', 'User Id');
-      //   return response(res, 'Error', errorRes, 400);
-      // }else 
-      if(err.code === '23505' && err.detail.includes('phonenumber')){
-        const errorRes = errorResponse('Phone number already exists', 'User Id');
-        return response(res, 'Error', errorRes, 400);
-      }
-      return response(res, 'Error', null, 400);
+      return errorResponse(err, res);
     } else {
       return response(res, 'edit profile successfully', results[0]);
     }
   });
-  // profileModel.updateProfile(id, req.body, (results)=>{
-  //   return response(res, 'Update user success!', results[0]);
-  // });
 };
 
 exports.deleteProfile = (req, res)=>{
