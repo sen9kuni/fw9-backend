@@ -1,10 +1,18 @@
 const db = require('../helpers/db');
 
 exports.getAllTransactions = (cb) => {
-  db.query('SELECT * FROM transactions', (err, res)=>{
+  db.query('SELECT * FROM transactions ORDER BY id ASC', (err, res)=>{
     cb(res.rows);
   });
 };
+
+// exports.getAllTransactions = (cb) => {
+//   const q = 'SELECT amount, recipient_id, sender_id, note, time, type_id FROM transactions';
+//   db.query(q, (err, res)=>{
+//     console.log(err);
+//     cb(res.rows);
+//   });
+// };
 
 exports.createTransaction = (data, cb) => {
   const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
