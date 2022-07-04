@@ -66,35 +66,11 @@ exports.searchUserById = (req, res)=>{
 
 
 // base
-// exports.searchSortUsers = (req, res) => {
-//   const {search = '', limit=parseInt(LIMIT_DATA), page=1} = req.query;
-
-//   const offset = (page - 1) * limit;
-//   userModel.searchSortUsers(search, limit, offset, (results)=>{
-//     if (results.length < 1) {
-//       return res.redirect('/404');
-//     }
-//     const pageInfo = {};
-//     // return response(res, 'List all User search', results, pageInfo);
-
-//     userModel.countAllUsers(search, (err, totalData)=>{
-//       pageInfo.totalData = totalData;
-//       pageInfo.totalPage = Math.ceil(totalData/limit);
-//       pageInfo.currentPage = parseInt(page);
-//       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
-//       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
-//       return response(res, 'List all User search', results, pageInfo);
-//     });
-//   });
-// };
-
-
-// experiment
 exports.searchSortUsers = (req, res) => {
-  const {table_name='', search = '', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+  const {search = '', limit=parseInt(LIMIT_DATA), page=1} = req.query;
 
   const offset = (page - 1) * limit;
-  userModel.searchSortUsers(table_name, search, limit, offset, (results)=>{
+  userModel.searchSortUsers(search, limit, offset, (results)=>{
     if (results.length < 1) {
       return res.redirect('/404');
     }
@@ -111,3 +87,27 @@ exports.searchSortUsers = (req, res) => {
     });
   });
 };
+
+
+// experiment
+// exports.searchSortUsers = (req, res) => {
+//   const {table_name='', search = '', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+
+//   const offset = (page - 1) * limit;
+//   userModel.searchSortUsers(table_name, search, limit, offset, (results)=>{
+//     if (results.length < 1) {
+//       return res.redirect('/404');
+//     }
+//     const pageInfo = {};
+//     // return response(res, 'List all User search', results, pageInfo);
+
+//     userModel.countAllUsers(search, (err, totalData)=>{
+//       pageInfo.totalData = totalData;
+//       pageInfo.totalPage = Math.ceil(totalData/limit);
+//       pageInfo.currentPage = parseInt(page);
+//       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+//       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+//       return response(res, 'List all User search', results, pageInfo);
+//     });
+//   });
+// };
