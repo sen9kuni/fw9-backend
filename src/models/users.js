@@ -57,22 +57,22 @@ exports.searchUserById = (id, cb)=>{
 };
 
 // base
-exports.searchSortUsers = (keyword, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
-  // const q = `SELECT * FROM users ASC WHERE email LIKE \'%${keyword}%\' ORDER BY id LIMIT $1 OFFSET $2`;
-  // const val = [limit, offset];
-  db.query(`SELECT * FROM users WHERE email LIKE '%${keyword}%' ORDER BY id ASC LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
-    cb(res.rows);
-  });
-};
-
-// experiment
-// exports.searchSortUsers = (table_name, keyword, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
+// exports.searchSortUsers = (keyword, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
 //   // const q = `SELECT * FROM users ASC WHERE email LIKE \'%${keyword}%\' ORDER BY id LIMIT $1 OFFSET $2`;
 //   // const val = [limit, offset];
-//   db.query(`SELECT * FROM users WHERE table_name=$1 LIKE '%${keyword}%' ORDER BY id ASC LIMIT $2 OFFSET $3`, [table_name, limit, offset], (err, res)=>{
+//   db.query(`SELECT * FROM users WHERE email LIKE '%${keyword}%' ORDER BY id ASC LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
 //     cb(res.rows);
 //   });
 // };
+
+// experiment
+exports.searchSortUsers = (column_name, keyword, sort_type, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
+  // const q = `SELECT * FROM users ASC WHERE email LIKE \'%${keyword}%\' ORDER BY id LIMIT $1 OFFSET $2`;
+  // const val = [limit, offset];
+  db.query(`SELECT * FROM users WHERE ${column_name} LIKE '%${keyword}%' ORDER BY id ${sort_type} LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
+    cb(res.rows);
+  });
+};
 
 exports.countAllUsers= (keyword, cb)=>{
   db.query(`SELECT * FROM users WHERE email LIKE '%${keyword}%'`, (err, res)=>{
