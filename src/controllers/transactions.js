@@ -19,9 +19,9 @@ exports.createTransaction = (req, res)=>{
 
   transactionModel.createTransaction(req.body, (err, results)=>{
     if (err) {
-      return response(res, 'Error', null, 400);
+      return response(err, res);
     } else {
-      return response(res, 'Create transaction successfully', results[0]);
+      return response(res, 'Create transaction successfully', results.rows[0]);
     }
   });
 };

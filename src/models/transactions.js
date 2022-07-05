@@ -19,11 +19,10 @@ exports.createTransaction = (data, cb) => {
   const val = [data.amount, data.recipient_id, data.sender_id, data.note, data.time, data.type_id];
   db.query(q, val, (err, res)=>{
     if (res) {
-      cb(err, res.rows);
+      cb(err, res);
     }else{
       cb(err);
     }
-    // cb(res.rows);
   });
 };
 
@@ -36,7 +35,6 @@ exports.updateTransaction = (id, data, cb) => {
     }else{
       cb(err);
     }
-    // cb(res.rows);
   });
 };
 

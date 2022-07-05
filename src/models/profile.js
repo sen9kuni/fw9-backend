@@ -12,11 +12,10 @@ exports.createProfile = (data, cb) =>{
   const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
   db.query(q, val, (err, res)=>{
     if (res) {
-      cb(err, res.rows);
+      cb(err, res);
     }else{
-      cb(err);
+      cb(err, res);
     }
-    // cb(res.rows);
   });
 };
 
@@ -25,11 +24,10 @@ exports.updateProfile = (id, data, cb)=>{
   const val = [data.fullname, data.phonenumber, data.balance, data.picture, id];
   db.query(q, val, (err, res)=>{
     if (res) {
-      cb(err, res.rows);
+      cb(err, res);
     }else{
       cb(err);
     }
-    // cb(res.rows);
   });
 };
 

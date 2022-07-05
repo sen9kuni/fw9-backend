@@ -22,7 +22,7 @@ exports.createUser = (req, res)=>{
     if (err) {
       return errorResponse(err, res);
     }else{
-      return response(res, 'Create user successfully', results[0]);
+      return response(res, 'Create user successfully', results.rows[0]);
     }
   });
 };
@@ -40,7 +40,7 @@ exports.editUser = (req, res)=>{
     if (err) {
       return errorResponse(err, res);
     }else{
-      return response(res, 'Edit user successfully', results[0]);
+      return response(res, 'Edit user successfully', results.rows);
     }
   });
 };

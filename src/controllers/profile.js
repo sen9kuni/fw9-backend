@@ -13,14 +13,15 @@ exports.createProfile = (req, res)=>{
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
-    return response(res, 'Error occured', validation.array(), 400);
+    return response(res, 'Error occured', validation.array(), null, 400);
   }
 
   profileModel.createProfile(req.body, (err, results)=>{
     if (err) {
+      console.log(res);
       return errorResponse(err, res);
     } else {
-      return response(res, 'Create profile successfully', results[0]);
+      return response(res, 'Create profile successfully', results.rows);
     }
   });
 };
@@ -30,14 +31,14 @@ exports.editProfile = (req, res)=>{
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
-    return response(res, 'Error occured', validation.array(), 400);
+    return response(res, 'Error occured', validation.array(), null, 400);
   }
 
   profileModel.updateProfile(id, req.body, (err, results)=>{
     if (err) {
       return errorResponse(err, res);
     } else {
-      return response(res, 'edit profile successfully', results[0]);
+      return response(res, 'edit profile successfully', results.rows);
     }
   });
 };

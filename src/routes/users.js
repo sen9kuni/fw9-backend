@@ -33,7 +33,7 @@ const editUserValidator = [
 ];
 // end var validator
 
-// users.get('/', userControllers.getAllUsers);
+users.get('/', userControllers.getAllUsers);
 
 // base
 users.get('/', body('limit').toInt(), body('page').toInt(), userControllers.searchSortUsers);

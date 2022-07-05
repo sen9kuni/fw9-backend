@@ -10,12 +10,12 @@ exports.createTransactionType = (data, cb) => {
   const q = 'INSERT INTO transaction_type(name, description) VALUES ($1, $2) RETURNING *';
   const val = [data.name, data.description];
   db.query(q, val, (err, res)=>{
+    console.log(err);
     if (res) {
-      cb(err, res.rows);
+      cb(err, res);
     }else{
       cb(err);
     }
-    // cb(res.rows);
   });
 };
 
@@ -28,7 +28,6 @@ exports.updateTransactionType = (id, data, cb) => {
     }else{
       cb(err);
     }
-    // cb(res.rows);
   });
 };
 

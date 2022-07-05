@@ -14,14 +14,14 @@ exports.createTransactionType = (req, res)=> {
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
-    return response(res, 'Error occured', validation.array(), 400);
+    return response(res, 'Error occured', validation.array(), null, 400);
   }
   
   transactionTypeModel.createTransactionType(req.body, (err, results)=>{
     if (err) {
       return errorResponse(err, res);
     } else {
-      return response(res, 'Create type transaction successfully', results[0]);
+      return response(res, 'Create type transaction successfully', results.rows[0]);
     }
   });
 };

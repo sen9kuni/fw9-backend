@@ -22,18 +22,18 @@ const errorResponse = (err, res) => {
 
   // profile
   if (err.code === '23505' && err.detail.includes('user_id')) {
-    const errorRes = errorResponse('User id already exists', 'User Id');
+    const errorRes = errorHandling('User id already exists', 'User Id');
     return response(res, 'Error', errorRes, null, 400);
   }
   if(err.code === '23505' && err.detail.includes('phonenumber')){
-    const errorRes = errorResponse('Phone number already exists', 'User Id');
+    const errorRes = errorHandling('Phone number already exists', 'phonenumber');
     return response(res, 'Error', errorRes, null, 400);
   }
   // end profile
 
   // transaction type 
   if (err.code === '23505' && err.detail.includes('name')) {
-    const errorRes = errorResponse('Name already exists', 'email');
+    const errorRes = errorHandling('Name already exists', 'name');
     return response(res, 'Error', errorRes, null, 400);
   }
   // end transaction type
