@@ -16,7 +16,6 @@ const response = (res, msg, result, pageInfo, status = 200) => {
   if(result){
     data.result = result;
   }
-  console.log('err',res);
   return res.status(status).json(data);
 };
 

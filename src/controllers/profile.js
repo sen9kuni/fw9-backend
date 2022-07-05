@@ -18,7 +18,6 @@ exports.createProfile = (req, res)=>{
 
   profileModel.createProfile(req.body, (err, results)=>{
     if (err) {
-      console.log(res);
       return errorResponse(err, res);
     } else {
       return response(res, 'Create profile successfully', results.rows);

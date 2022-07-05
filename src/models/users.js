@@ -9,7 +9,6 @@ const {LIMIT_DATA} = process.env;
 
 exports.getAllUsers = (cb) => {
   db.query('SELECT * FROM users ORDER BY id ASC', (err, res)=>{
-    console.log(err);
     cb(res.rows);
   });
 };
