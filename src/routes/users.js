@@ -37,15 +37,9 @@ const editUserValidator = [
 ];
 // end var validator
 
-users.get('/', userControllers.getAllUsers);
 
-// base
 users.get('/', body('limit').toInt(), body('page').toInt(), userControllers.searchSortUsers);
-
-// expreriment
-// users.get('/', body('table_name'), body('limit').toInt(), body('page').toInt(), userControllers.searchSortUsers);
-
-users.get('/:id',userControllers.searchUserById);
+users.get('/:id',userControllers.getUserById);
 users.post('/', ...createUserValidator, userControllers.createUser);
 users.patch('/:id', ...editUserValidator, userControllers.editUser);
 users.delete('/:id', userControllers.deleteUser);

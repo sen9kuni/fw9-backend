@@ -1,13 +1,13 @@
 const response = require('../helpers/standardRespond');
 const transactionModel = require('../models/transactions');
 const { validationResult } = require('express-validator');
-// const errorResponse = require('../helpers/errorResponse');
+const {LIMIT_DATA} = process.env;
 
-exports.getTransactions = (req, res) => {
-  transactionModel.getAllTransactions((results)=>{
-    return response(res, 'Show transactions', results);
-  });
-};
+// exports.getTransactions = (req, res) => {
+//   transactionModel.getAllTransactions((results)=>{
+//     return response(res, 'Show transactions', results);
+//   });
+// };
 
 
 exports.createTransaction = (req, res)=>{
@@ -50,9 +50,30 @@ exports.deleteTransaction = (req, res)=>{
   });
 };
 
-exports.searchUserById = (req, res)=>{
+exports.getTransactionById = (req, res)=>{
   const {id} = req.params;
-  transactionModel.searchTransactionById(id, (results)=>{
+  transactionModel.getTransactionById(id, (results)=>{
     return response(res, 'transaction search', results[0]);
+  });
+};
+
+exports.searchSortTrans = (req, res) => {
+  const {searchBy='', search='', sort_by='', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+
+  const offset = (page - 1) * limit;
+  transactionModel.searchSortTrans(searchBy, search, sort_by, sort_type, limit, offset, (results)=>{
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    transactionModel.countAllTrans(search, (err, totalData)=>{
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+      return response(res, 'List all Transaction search', results, pageInfo);
+    });
   });
 };

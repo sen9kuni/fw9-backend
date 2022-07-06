@@ -2,12 +2,13 @@ const response = require('../helpers/standardRespond');
 const transactionTypeModel = require('../models/transactiontype');
 const { validationResult } = require('express-validator');
 const errorResponse = require('../helpers/errorResponse');
+const {LIMIT_DATA} = process.env;
 
-exports.getAllTransactionType = (req, res)=>{
-  transactionTypeModel.getAllTransactionType((result)=>{
-    return response(res, 'Show transaction types', result);
-  });
-};
+// exports.getAllTransactionType = (req, res)=>{
+//   transactionTypeModel.getAllTransactionType((result)=>{
+//     return response(res, 'Show transaction types', result);
+//   });
+// };
 
 
 exports.createTransactionType = (req, res)=> {
@@ -52,9 +53,30 @@ exports.deleteTransactionType = (req, res)=> {
   });
 };
 
-exports.searchTransactionTypeById = (req, res)=>{
+exports.getTransactionTypeById = (req, res)=>{
   const {id} = req.params;
-  transactionTypeModel.searchTransactionTypeById(id, (results)=>{
+  transactionTypeModel.getTransactionTypeById(id, (results)=>{
     return response(res, 'User search', results[0]);
+  });
+};
+
+exports.searchSortTransType = (req, res) => {
+  const {searchBy='', search='', sort_by='', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+
+  const offset = (page - 1) * limit;
+  transactionTypeModel.searchSortTransType(searchBy, search, sort_by, sort_type, limit, offset, (results)=> {
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    transactionTypeModel.countAllTransType(search, (err, totalData)=> {
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+      return response(res, 'List all Transaction type search', results, pageInfo);
+    });
   });
 };

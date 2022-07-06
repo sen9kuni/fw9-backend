@@ -13,8 +13,8 @@ const editTransactionsValidator = [
 ];
 
 
-transactions.get('/', transactionsControllers.getTransactions);
-transactions.get('/:id', transactionsControllers.searchUserById);
+transactions.get('/',body('limit').toInt(), body('page').toInt(), transactionsControllers.searchSortTrans);
+transactions.get('/:id', transactionsControllers.getTransactionById);
 
 // error karena jika recipient_id,sender_id,type_id sama setiap id akan terjadi error
 // note: posisi primary, uniq, dan foren key sudah di setting di database

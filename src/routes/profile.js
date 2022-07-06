@@ -16,7 +16,7 @@ const createProfileValidator = [
 // ];
 // end var validator
 
-profile.get('/',body('limit').toInt(), body('page').toInt(), profileControllers.searchSortProfile);
+profile.get('/', body('limit').toInt(), body('page').toInt(), profileControllers.searchSortProfile);
 profile.get('/:id', profileControllers.getProfileById);
 profile.post('/', ...createProfileValidator, profileControllers.createProfile);
 

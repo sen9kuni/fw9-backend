@@ -2,16 +2,10 @@ const db = require('../helpers/db');
 const {LIMIT_DATA} = process.env;
 
 // exports.getAllUsers = (cb) => {
-//   db.query('SELECT * FROM users', (err, res)=>{
+//   db.query('SELECT * FROM users ORDER BY id ASC', (err, res)=>{
 //     cb(res.rows);
 //   });
 // };
-
-exports.getAllUsers = (cb) => {
-  db.query('SELECT * FROM users ORDER BY id ASC', (err, res)=>{
-    cb(res.rows);
-  });
-};
 
 exports.createUser = (data, cb) =>{
   const q = 'INSERT INTO users(email, password, username, pin) VALUES ($1, $2, $3, $4) RETURNING *';
@@ -45,7 +39,7 @@ exports.deleteUser = (id, cb)=>{
   });
 };
 
-exports.searchUserById = (id, cb)=>{
+exports.getUserById = (id, cb)=>{
   const q = 'SELECT * FROM users WHERE id=$1';
   const val = [id];
   db.query(q, val, (err, res)=>{
@@ -71,7 +65,7 @@ exports.searchSortUsers = (column_name, keyword, sort_type, limit=parseInt(LIMIT
   });
 };
 
-exports.countAllUsers= (keyword, cb)=>{
+exports.countAllUsers = (keyword, cb)=>{
   db.query(`SELECT * FROM users WHERE email LIKE '%${keyword}%'`, (err, res)=>{
     cb(err, res.rowCount);
   });

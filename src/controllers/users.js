@@ -4,11 +4,11 @@ const { validationResult } = require('express-validator');
 const errorResponse = require('../helpers/errorResponse');
 const {LIMIT_DATA} = process.env;
 
-exports.getAllUsers = (req, res)=>{
-  userModel.getAllUsers((results)=>{
-    return response(res, 'show users', results);
-  });
-};
+// exports.getAllUsers = (req, res)=>{
+//   userModel.getAllUsers((results)=>{
+//     return response(res, 'show users', results);
+//   });
+// };
 
 
 exports.createUser = (req, res)=>{
@@ -53,9 +53,9 @@ exports.deleteUser = (req, res)=>{
   });
 };
 
-exports.searchUserById = (req, res)=>{
+exports.getUserById = (req, res)=>{
   const {id} = req.params;
-  userModel.searchUserById(id, (results)=>{
+  userModel.getUserById(id, (results)=>{
     // if (res.rows.length > 0) {
     return response(res, 'User search', results[0]);
     // } else {

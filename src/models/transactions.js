@@ -1,4 +1,6 @@
 const db = require('../helpers/db');
+const {LIMIT_DATA} = process.env;
+
 
 exports.getAllTransactions = (cb) => {
   db.query('SELECT * FROM transactions ORDER BY id ASC', (err, res)=>{
@@ -46,10 +48,22 @@ exports.deleteProfile = (id, cb)=>{
   });
 };
 
-exports.searchTransactionById = (id, cb)=>{
+exports.getTransactionById = (id, cb)=>{
   const q = 'SELECT * FROM transactions WHERE id=$1';
   const val = [id];
   db.query(q, val, (err, res)=>{
     cb(res.rows);
+  });
+};
+
+exports.searchSortTrans = (searchBy, keyword, sort_by, sort_type, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
+  db.query(`SELECT * FROM transactions WHERE ${searchBy} LIKE '%${keyword}%' ORDER BY ${sort_by} ${sort_type} LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
+    cb(res.rows);
+  });
+};
+
+exports.countAllTrans = (keyword, cb)=>{
+  db.query(`SELECT * FROM transactions WHERE note LIKE '%${keyword}%'`, (err, res)=>{
+    cb(err, res.rowCount);
   });
 };

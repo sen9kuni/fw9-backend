@@ -14,8 +14,10 @@ const editTransactionsTypeValidator = [
 ];
 // end var validator
 
-transactiontype.get('/', transactionsTypeControllers.getAllTransactionType);
-transactiontype.get('/:id', transactionsTypeControllers.searchTransactionTypeById);
+// transactiontype.get('/', transactionsTypeControllers.getAllTransactionType);
+
+transactiontype.get('/', body('limit').toInt(), body('page').toInt(), transactionsTypeControllers.searchSortTransType);
+transactiontype.get('/:id', transactionsTypeControllers.getTransactionTypeById);
 transactiontype.post('/', ...createTransactionsTypeValidator, transactionsTypeControllers.createTransactionType);
 transactiontype.patch('/:id', ...editTransactionsTypeValidator, transactionsTypeControllers.editTransactionType);
 transactiontype.delete('/:id', transactionsTypeControllers.deleteTransactionType);
