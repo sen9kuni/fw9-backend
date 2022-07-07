@@ -3,6 +3,8 @@ const profile = require('express').Router();
 const profileControllers = require('../controllers/profile');
 
 const { body } = require('express-validator');
+const profileValidatorRules = require('./validator/validatorProfile');
+const uploadProfile = require('../middleware/uploadProfile');
 
 // var validator
 const createProfileValidator = [
@@ -24,8 +26,12 @@ profile.post('/', ...createProfileValidator, profileControllers.createProfile);
 // profile.patch('/:id', ...editProfileValidator, profileControllers.editProfile);
 
 // experiment
-profile.patch('/:id', profileControllers.editProfile);
+// profile.patch('/:id', profileControllers.editProfile);
 // experiment
+
+// experiment mk 2
+profile.patch('/:id',uploadProfile, ...profileValidatorRules, profileControllers.editProfile);
+// experiment mk 2
 
 profile.delete('/:id', profileControllers.deleteProfile);
 

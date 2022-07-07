@@ -34,14 +34,44 @@ exports.createProfile = (data, cb) =>{
 // };
 
 // experiment
-exports.updateProfile = (id, picture, cb)=>{
-  const q = 'UPDATE profile SET picture= $1 WHERE id= $2 RETURNING *';
-  const val = [picture, id];
+// exports.updateProfile = (id, picture, cb)=>{
+//   const q = 'UPDATE profile SET picture= $1 WHERE id= $2 RETURNING *';
+//   const val = [picture, id];
+//   db.query(q, val, (err, res)=>{
+//     cb(err, res);
+//   });
+// };
+// experiment
+
+// experiment mk2
+exports.updateProfile = (id, picture, data, cb)=>{
+  let val = [id];
+
+  const filtered = {};
+
+  const objt = {
+    picture,
+    fullname: data.fullname,
+    balance: data.balance,
+    phonenumber: data.phonenumber
+  };
+
+  for(let x in objt){
+    if (objt[x]!==null) {
+      filtered[x] = objt[x];
+      val.push(objt[x]);
+    }
+  }
+
+  const key = Object.keys(filtered);
+  const finalResult = key.map((o, ind)=> `${o}=$${ind+2}`);
+
+  const q = `UPDATE profile SET ${finalResult} WHERE id=$1 RETURNING *`;
   db.query(q, val, (err, res)=>{
     cb(err, res);
   });
 };
-// experiment
+// experiment mk2
 
 exports.deleteProfile = (id, cb)=>{
   const q = 'DELETE FROM profile WHERE id=$1 RETURNING *';
