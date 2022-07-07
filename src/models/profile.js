@@ -7,7 +7,7 @@ exports.getAllProfile = (cb) => {
   });
 };
 
-
+// base
 exports.createProfile = (data, cb) =>{
   const q = 'INSERT INTO profile(fullname, phonenumber, balance, picture, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
   const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
@@ -19,6 +19,8 @@ exports.createProfile = (data, cb) =>{
     }
   });
 };
+
+// expreiment
 
 // base
 // exports.updateProfile = (id, data, cb)=>{
