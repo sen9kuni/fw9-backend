@@ -7,10 +7,10 @@ const profileValidatorRules = require('./validator/validatorProfile');
 const uploadProfile = require('../middleware/uploadProfile');
 
 // var validator
-const createProfileValidator = [
-  body('fullname').isLength({min: 7}).withMessage('Fullname length minimal 7'),
-  body('phonenumber').isLength({min: 12}).withMessage('Phone number length minimal 12')
-];
+// const createProfileValidator = [
+//   body('fullname').isLength({min: 7}).withMessage('Fullname length minimal 7'),
+//   body('phonenumber').isLength({min: 12}).withMessage('Phone number length minimal 12')
+// ];
 
 // const editProfileValidator = [
 //   body('fullname').isLength({min: 7}).withMessage('Fullname length minimal 7'),
@@ -20,7 +20,12 @@ const createProfileValidator = [
 
 profile.get('/', body('limit').toInt(), body('page').toInt(), profileControllers.searchSortProfile);
 profile.get('/:id', profileControllers.getProfileById);
-profile.post('/', ...createProfileValidator, profileControllers.createProfile);
+
+// base create
+// profile.post('/', ...createProfileValidator, profileControllers.createProfile);
+
+// experiment create
+profile.post('/', uploadProfile, ...profileValidatorRules, profileControllers.createProfile);
 
 // base
 // profile.patch('/:id', ...editProfileValidator, profileControllers.editProfile);

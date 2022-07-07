@@ -1,6 +1,6 @@
 const response = require('../helpers/standardRespond');
-const { validationResult } = require('express-validator');
-const errorResponse = require('../helpers/errorResponse');
+// const { validationResult } = require('express-validator');
+// const errorResponse = require('../helpers/errorResponse');
 const profileModel = require('../models/profile');
 // const upload = require('../helpers/upload').single('picture');
 const {LIMIT_DATA} = process.env;
@@ -11,19 +11,37 @@ const {LIMIT_DATA} = process.env;
 //   });
 // };
 
-exports.createProfile = (req, res)=>{
-  const validation = validationResult(req);
 
-  if (!validation.isEmpty()) {
-    return response(res, 'Error occured', validation.array(), null, 400);
+// base
+// exports.createProfile = (req, res)=>{
+//   const validation = validationResult(req);
+
+//   if (!validation.isEmpty()) {
+//     return response(res, 'Error occured', validation.array(), null, 400);
+//   }
+
+//   profileModel.createProfile(req.body, (err, results)=>{
+//     if (err) {
+//       return errorResponse(err, res);
+//     } else {
+//       return response(res, 'Create profile successfully', results.rows);
+//     }
+//   });
+// };
+
+// experiment
+exports.createProfile = (req, res)=>{
+  let filename = null;
+
+  if(req.file){
+    filename = req.file.filename;
   }
 
-  profileModel.createProfile(req.body, (err, results)=>{
+  profileModel.createProfile(filename, req.body, (err, results)=> {
     if (err) {
-      return errorResponse(err, res);
-    } else {
-      return response(res, 'Create profile successfully', results.rows);
+      return response(res, `Failed to update: ${err.message}`, null, null, 400);
     }
+    return response(res, 'Profile updated', results.rows[0]);
   });
 };
 

@@ -8,9 +8,42 @@ exports.getAllProfile = (cb) => {
 };
 
 // base
-exports.createProfile = (data, cb) =>{
-  const q = 'INSERT INTO profile(fullname, phonenumber, balance, picture, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-  const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
+// exports.createProfile = (data, cb) =>{
+//   const q = 'INSERT INTO profile(fullname, phonenumber, balance, picture, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+//   const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
+//   db.query(q, val, (err, res)=>{
+//     if (res) {
+//       cb(err, res);
+//     }else{
+//       cb(err, res);
+//     }
+//   });
+// };
+
+// expreiment
+exports.createProfile = (picture, data, cb) =>{
+  let val = [];
+  const filtered = {};
+  const objet = {
+    picture,
+    fullname: data.fullname,
+    balance: data.balance,
+    phonenumber: data.phonenumber,
+    user_id: data.user_id
+  };
+
+  for(let x in objet){
+    if(objet[x]!==null){
+      filtered[x] = objet[x];
+      val.push(objet[x]);
+    }
+  }
+
+  const key = Object.keys(filtered);
+  const finalResult = key.map((o, ind)=> `$${o= ind+1}`);
+
+  const q = `INSERT INTO profile(${key}) VALUES (${finalResult}) RETURNING *`;
+  // const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
   db.query(q, val, (err, res)=>{
     if (res) {
       cb(err, res);
@@ -19,8 +52,6 @@ exports.createProfile = (data, cb) =>{
     }
   });
 };
-
-// expreiment
 
 // base
 // exports.updateProfile = (id, data, cb)=>{
