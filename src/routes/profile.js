@@ -5,6 +5,7 @@ const profileControllers = require('../controllers/profile');
 const { body } = require('express-validator');
 const profileValidatorRules = require('./validator/validatorProfile');
 const uploadProfile = require('../middleware/uploadProfile');
+const validation = require('../middleware/validation');
 
 // var validator
 // const createProfileValidator = [
@@ -35,7 +36,7 @@ profile.post('/', uploadProfile, ...profileValidatorRules, profileControllers.cr
 // experiment
 
 // experiment mk 2
-profile.patch('/:id',uploadProfile, ...profileValidatorRules, profileControllers.editProfile);
+profile.patch('/:id',uploadProfile, ...profileValidatorRules,validation, profileControllers.editProfile);
 // experiment mk 2
 
 profile.delete('/:id', profileControllers.deleteProfile);
