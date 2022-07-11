@@ -1,4 +1,5 @@
 const userModel = require('../models/users');
+const authmodel = require('../models/authenticated');
 const response = require('../helpers/standardRespond');
 const errorResponse = require('../helpers/errorResponse');
 const bcrypt = require('bcrypt');
@@ -52,8 +53,18 @@ exports.login = (req, res)=> {
         }
         return response(res, 'Email or Password not match', null, null, 400);
       })
-      .catch(e =>{
+      .catch(() =>{
         return response(res, 'Email or Password not match', null, null, 400);
       });
+  });
+};
+
+exports.register2 = (req, res) =>{
+  req.body.pin = null;
+  authmodel.register(req.body, (err)=> {
+    if(err){
+      return errorResponse(err, res);
+    }
+    return response(res, 'Register successfully');
   });
 };

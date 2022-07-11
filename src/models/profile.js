@@ -7,20 +7,6 @@ exports.getAllProfile = (cb) => {
   });
 };
 
-// base
-// exports.createProfile = (data, cb) =>{
-//   const q = 'INSERT INTO profile(fullname, phonenumber, balance, picture, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *';
-//   const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
-//   db.query(q, val, (err, res)=>{
-//     if (res) {
-//       cb(err, res);
-//     }else{
-//       cb(err, res);
-//     }
-//   });
-// };
-
-// expreiment
 exports.createProfile = (picture, data, cb) =>{
   let val = [];
   const filtered = {};
@@ -43,7 +29,6 @@ exports.createProfile = (picture, data, cb) =>{
   const finalResult = key.map((o, ind)=> `$${o= ind+1}`);
 
   const q = `INSERT INTO profile(${key}) VALUES (${finalResult}) RETURNING *`;
-  // const val = [data.fullname, data.phonenumber, data.balance, data.picture, data.user_id];
   db.query(q, val, (err, res)=>{
     if (res) {
       cb(err, res);
@@ -53,30 +38,7 @@ exports.createProfile = (picture, data, cb) =>{
   });
 };
 
-// base
-// exports.updateProfile = (id, data, cb)=>{
-//   const q = 'UPDATE profile SET fullname=$1, phonenumber=$2, balance=$3, picture=$4 WHERE id=$5 RETURNING *';
-//   const val = [data.fullname, data.phonenumber, data.balance, data.picture, id];
-//   db.query(q, val, (err, res)=>{
-//     if (res) {
-//       cb(err, res);
-//     }else{
-//       cb(err);
-//     }
-//   });
-// };
 
-// experiment
-// exports.updateProfile = (id, picture, cb)=>{
-//   const q = 'UPDATE profile SET picture= $1 WHERE id= $2 RETURNING *';
-//   const val = [picture, id];
-//   db.query(q, val, (err, res)=>{
-//     cb(err, res);
-//   });
-// };
-// experiment
-
-// experiment mk2
 exports.updateProfile = (id, picture, data, cb)=>{
   let val = [id];
 
@@ -104,7 +66,6 @@ exports.updateProfile = (id, picture, data, cb)=>{
     cb(err, res);
   });
 };
-// experiment mk2
 
 exports.deleteProfile = (id, cb)=>{
   const q = 'DELETE FROM profile WHERE id=$1 RETURNING *';
@@ -117,6 +78,23 @@ exports.deleteProfile = (id, cb)=>{
 exports.getProfileById = (id, cb)=>{
   const q = 'SELECT * FROM profile WHERE id=$1';
   const val = [id];
+  db.query(q, val, (err, res)=>{
+    console.log(res);
+    cb(res);
+  });
+};
+
+exports.getProfileByUserIdAuth = (user_id, cb)=>{
+  const q = 'SELECT * FROM profile WHERE user_id=$1';
+  const val = [user_id];
+  db.query(q, val, (err, res)=>{
+    cb(err, res);
+  });
+};
+
+exports.getProfileByUserId = (user_id, cb)=>{
+  const q = 'SELECT fullname, phonenumber, picture, balance FROM profile WHERE user_id=$1';
+  const val = [user_id];
   db.query(q, val, (err, res)=>{
     cb(res.rows);
   });
@@ -132,5 +110,47 @@ exports.searchSortProfile = (searchBy, keyword, sort_by, sort_type, limit=parseI
 exports.countAllProfile = (keyword, cb)=>{
   db.query(`SELECT * FROM profile WHERE fullname LIKE '%${keyword}%'`, (err, res)=>{
     cb(err, res.rowCount);
+  });
+};
+
+// auth
+exports.updateProfileAuth = (user_id, picture, data, cb)=>{
+  let val = [user_id];
+
+  const filtered = {};
+
+  const objt = {
+    picture,
+    fullname: data.fullname,
+    balance: data.balance,
+    phonenumber: data.phonenumber
+  };
+
+  for(let x in objt){
+    if (objt[x]!==null) {
+      filtered[x] = objt[x];
+      val.push(objt[x]);
+    }
+  }
+
+  const key = Object.keys(filtered);
+  const finalResult = key.map((o, ind)=> `${o}=$${ind+2}`);
+
+  const q = `UPDATE profile SET ${finalResult} WHERE user_id=$1 RETURNING *`;
+  db.query(q, val, (err, res)=>{
+    cb(err, res);
+  });
+};
+
+
+exports.changePhoneNumber = (user_id, data, cb)=>{
+  const q = 'UPDATE profile SET phonenumber=$1 WHERE user_id=$2';
+  const val = [data.phonenumber, user_id];
+  db.query(q, val, (err, res)=>{
+    if (res) {
+      cb(err, res);
+    }else{
+      cb(err);
+    }
   });
 };

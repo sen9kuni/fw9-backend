@@ -3,13 +3,6 @@ const transactionModel = require('../models/transactions');
 const { validationResult } = require('express-validator');
 const {LIMIT_DATA} = process.env;
 
-// exports.getTransactions = (req, res) => {
-//   transactionModel.getAllTransactions((results)=>{
-//     return response(res, 'Show transactions', results);
-//   });
-// };
-
-
 exports.createTransaction = (req, res)=>{
   const validation = validationResult(req);
 

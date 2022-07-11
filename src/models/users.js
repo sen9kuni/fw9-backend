@@ -114,3 +114,29 @@ exports.countAllUsers = (keyword, cb)=>{
     cb(err, res.rowCount);
   });
 };
+
+// auth
+exports.changePassword = (id, data, cb)=>{
+  const q = 'UPDATE users SET password=$1 WHERE id=$2';
+  const val = [data.password, id];
+  db.query(q, val, (err, res)=>{
+    if (res) {
+      cb(err, res);
+    }else{
+      cb(err);
+    }
+  });
+};
+
+exports.changePin = (id, data, cb)=>{
+  const q = 'UPDATE users SET pin=$1 WHERE id=$2';
+  const val = [data.pin, id];
+  db.query(q, val, (err, res)=>{
+    console.log(res);
+    if (res) {
+      cb(err, res);
+    }else{
+      cb(err);
+    }
+  });
+};

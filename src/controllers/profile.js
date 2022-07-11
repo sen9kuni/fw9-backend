@@ -1,35 +1,7 @@
 const response = require('../helpers/standardRespond');
-// const { validationResult } = require('express-validator');
-// const errorResponse = require('../helpers/errorResponse');
 const profileModel = require('../models/profile');
-// const upload = require('../helpers/upload').single('picture');
 const {LIMIT_DATA} = process.env;
 
-// exports.getAllProfile = (req, res)=>{
-//   profileModel.getAllProfile((results)=>{
-//     return response(res, 'Message from standard get respones users', results);
-//   });
-// };
-
-
-// base
-// exports.createProfile = (req, res)=>{
-//   const validation = validationResult(req);
-
-//   if (!validation.isEmpty()) {
-//     return response(res, 'Error occured', validation.array(), null, 400);
-//   }
-
-//   profileModel.createProfile(req.body, (err, results)=>{
-//     if (err) {
-//       return errorResponse(err, res);
-//     } else {
-//       return response(res, 'Create profile successfully', results.rows);
-//     }
-//   });
-// };
-
-// experiment
 exports.createProfile = (req, res)=>{
   let filename = null;
 
@@ -45,39 +17,6 @@ exports.createProfile = (req, res)=>{
   });
 };
 
-// base
-// exports.editProfile = (req, res)=>{
-//   const {id} = req.params;
-//   const validation = validationResult(req);
-
-//   if (!validation.isEmpty()) {
-//     return response(res, 'Error occured', validation.array(), null, 400);
-//   }
-
-//   profileModel.updateProfile(id, req.body, (err, results)=>{
-//     if (err) {
-//       return errorResponse(err, res);
-//     } else {
-//       return response(res, 'edit profile successfully', results.rows);
-//     }
-//   });
-// };
-
-// experiment
-// exports.editProfile = (req, res)=>{
-//   const {id} = req.params;
-//   upload(req, res, (err)=>{
-//     if (err) {
-//       return response(res, `Failed to update: ${err.message}`, null, null, 400);
-//     }
-//     profileModel.updateProfile(id, req.file.filename, (err, results)=>{
-//       return response(res, 'edit profile successfully', results.rows[0]);
-//     });
-//   });
-// };
-// experiment
-
-// experiment mk 2
 exports.editProfile = (req, res)=>{
   const {id} = req.params;
   let filename = null;
@@ -93,7 +32,6 @@ exports.editProfile = (req, res)=>{
     return response(res, 'Profile updated', results.rows[0]);
   });
 };
-// experiment mk 2
 
 exports.deleteProfile = (req, res)=>{
   const {id} = req.params;

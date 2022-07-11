@@ -4,13 +4,6 @@ const { validationResult } = require('express-validator');
 const errorResponse = require('../helpers/errorResponse');
 const {LIMIT_DATA} = process.env;
 
-// exports.getAllTransactionType = (req, res)=>{
-//   transactionTypeModel.getAllTransactionType((result)=>{
-//     return response(res, 'Show transaction types', result);
-//   });
-// };
-
-
 exports.createTransactionType = (req, res)=> {
   const validation = validationResult(req);
 
