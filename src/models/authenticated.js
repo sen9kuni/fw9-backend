@@ -36,14 +36,14 @@ exports.trasfer = (sender_id, data, cb)=> {
     if (err){
       console.log('error 1');
     } else {
-      const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+      const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5, $6) RETURNING amount, recipient_id, sender_id, note, time, type_id_trans';
       const val =[data.amount, data.recipient_id, sender_id, data.note, data.time, data.type_id_trans];
-      db.query(q, val, (err, res) => {
+      db.query(q, val, (err, res1) => {
         if (err){
           console.log('error 2');
         } else {
           const updateProfileSender = 'UPDATE profile SET balance = balance - $1 WHERE user_id = $2';
-          const valProfileSender = [data.amount, res.rows[0].sender_id];
+          const valProfileSender = [data.amount, res1.rows[0].sender_id];
           db.query(updateProfileSender, valProfileSender, (err, res) => {
             if (err){
               console.log('error 3');
@@ -54,7 +54,7 @@ exports.trasfer = (sender_id, data, cb)=> {
                 if (err){
                   console.log('error 4');
                 }else {
-                  cb(err, res);
+                  cb(err, res1);
                   db.query('COMMIT', err => {
                     if (err) {
                       console.error('Error trasfer', err.stack);
