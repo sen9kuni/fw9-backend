@@ -1,10 +1,11 @@
 const response = require('../helpers/standardRespond');
 const profileModel = require('../models/profile');
-const transactionModel = require('../models/transactions');
+// const transactionModel = require('../models/transactions');
 const userModel = require('../models/users');
 const authModel = require('../models/authenticated');
 const errorResponse = require('../helpers/errorResponse');
 const {LIMIT_DATA} = process.env;
+const bcrypt = require('bcrypt');
 
 exports.profile = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
@@ -14,28 +15,48 @@ exports.profile = (req, res)=>{
 };
 
 // not work yet
-exports.searchSortTrans = (req, res) => {
-  const search = parseInt(req.authUser.id);
-  const {sort_by='', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+// exports.searchSortTrans = (req, res) => {
+//   const search = parseInt(req.authUser.id);
+//   const {sort_by='', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
 
-  const offset = (page - 1) * limit;
-  transactionModel.searchSortTranswithAuth(parseInt(search), sort_by, sort_type, limit, offset, (results)=>{
+//   const offset = (page - 1) * limit;
+//   transactionModel.searchSortTranswithAuth(parseInt(search), sort_by, sort_type, limit, offset, (results)=>{
+//     if (results.length < 1) {
+//       return res.redirect('/404');
+//     }
+//     const pageInfo = {};
+
+//     transactionModel.countAllTranswithAuth(search, (err, totalData)=>{
+//       pageInfo.totalData = totalData;
+//       pageInfo.totalPage = Math.ceil(totalData/limit);
+//       pageInfo.currentPage = parseInt(page);
+//       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+//       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+//       return response(res, 'List all Transaction User', results, pageInfo);
+//     });
+//   });
+// };
+// not work yet
+
+exports.historyTransactions = (req, res) =>{
+  const id = parseInt(req.authUser.id);
+  const {searchBy='note', search='',sortBy='time',sortType='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+  authModel.historyTransactions(id, searchBy, search, sortBy, sortType, limit, page, (err, results)=>{
     if (results.length < 1) {
       return res.redirect('/404');
     }
     const pageInfo = {};
 
-    transactionModel.countAllTranswithAuth(search, (err, totalData)=>{
+    authModel.countHistoryTransactions(id,searchBy, search, (err, totalData)=>{
       pageInfo.totalData = totalData;
       pageInfo.totalPage = Math.ceil(totalData/limit);
       pageInfo.currentPage = parseInt(page);
       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
-      return response(res, 'List all Transaction User', results, pageInfo);
+      return response(res, 'List history Transaction User', results, pageInfo);
     });
   });
 };
-// not work yet
 
 exports.addPhone = (req, res) => {
   const user_id = parseInt(req.authUser.id);
@@ -50,10 +71,10 @@ exports.addPhone = (req, res) => {
           }
         });
       } else {
-        return errorResponse(res, 'Error: phonenumber already set', null, null, 400);
+        return response(res, 'Error: phonenumber already set', null, null, 400);
       }
     } else {
-      return errorResponse(res, 'Error: id does not exists', null, null, 400);
+      return response(res, 'Error: id does not exists', null, null, 400);
     }
   });
 };
@@ -114,5 +135,35 @@ exports.editPhonenumber = (req, res)=>{
     }else{
       return response(res, 'Edit phonenumber successfully');
     }
+  });
+};
+
+exports.changePasswordTest = (req, res)=>{
+  const id = parseInt(req.authUser.id);
+  const {currentPassword, newPassword} = req.body;
+  // console.log(newPassword);
+  userModel.getUserById(id, (err, results)=>{
+    if (results.rows.length < 1) {
+      return response(res, 'User not found', null, null, 400);
+    }
+    const user = results.rows[0];
+    bcrypt.compare(currentPassword, user.password)
+      .then((cpRes)=>{
+        console.log(cpRes);
+        console.log(newPassword);
+        if (cpRes){
+          userModel.changePassword(id, newPassword, (err)=>{
+            console.log(err);
+            if (err) {
+              return errorResponse(err, res);
+            }else{
+              return response(res, 'Change Password successfully');
+            }
+          });
+        }
+      })
+      .catch(() =>{
+        return response(res, 'Password not match', null, null, 400);
+      });
   });
 };

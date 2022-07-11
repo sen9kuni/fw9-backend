@@ -79,7 +79,7 @@ exports.getUserById = (id, cb)=>{
   const q = 'SELECT * FROM users WHERE id=$1';
   const val = [id];
   db.query(q, val, (err, res)=>{
-    cb(res.rows);
+    cb(err, res);
   });
 };
 
@@ -116,9 +116,9 @@ exports.countAllUsers = (keyword, cb)=>{
 };
 
 // auth
-exports.changePassword = (id, data, cb)=>{
+exports.changePassword = (id, password, cb)=>{
   const q = 'UPDATE users SET password=$1 WHERE id=$2';
-  const val = [data.password, id];
+  const val = [password, id];
   db.query(q, val, (err, res)=>{
     if (res) {
       cb(err, res);

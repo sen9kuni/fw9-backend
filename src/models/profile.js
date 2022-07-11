@@ -63,7 +63,11 @@ exports.updateProfile = (id, picture, data, cb)=>{
 
   const q = `UPDATE profile SET ${finalResult} WHERE id=$1 RETURNING *`;
   db.query(q, val, (err, res)=>{
-    cb(err, res);
+    if (res) {
+      cb(err, res);
+    }else{
+      cb(err, res);
+    }
   });
 };
 

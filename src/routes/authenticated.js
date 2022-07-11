@@ -8,7 +8,7 @@ const rule = require('./validator/authenticated');
 // GET
 authenticated.get('/profile', authMiddelware, authenticatedController.profile);
 // not work yet
-authenticated.get('/historyTransactions', authMiddelware, authenticatedController.searchSortTrans);
+authenticated.get('/historyTransactions', authMiddelware, authenticatedController.historyTransactions);
 // not work yet
 
 // POST
@@ -17,7 +17,7 @@ authenticated.post('/transfer', authMiddelware, authenticatedController.transfer
 
 // PATCH
 authenticated.patch('/profile', authMiddelware, uploadProfile, ...profileValidatorRules, authenticatedController.updateProfile);
-authenticated.patch('/changePassword', authMiddelware, rule.changePassword, authenticatedController.editPassword);
+authenticated.patch('/changePassword', authMiddelware, rule.changePassword, authenticatedController.changePasswordTest);
 authenticated.patch('/changePin', authMiddelware, rule.changePin, authenticatedController.editPin);
 authenticated.patch('/phone', authMiddelware, rule.editPhone, authenticatedController.editPhonenumber);
 

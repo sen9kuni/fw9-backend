@@ -7,7 +7,7 @@ exports.addphone =[
 ];
 
 exports.changePassword =[
-  body('password')
+  body('newPassword')
     .isLength({min: 8}).withMessage('Password length minimal 8 character')
     .customSanitizer(async   (val) =>{
       const hash = await bcrypt.hash(val, 10);

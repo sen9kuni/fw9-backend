@@ -62,12 +62,12 @@ exports.countAllTrans = (keyword, cb)=>{
 };
 
 // withAuth
-exports.searchSortTranswithAuth = (search, sort_by, sort_type, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
-  db.query(`SELECT * FROM transactions WHERE recipient_id LIKE '%${search}%' ORDER BY ${sort_by} ${sort_type} LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
-    // console.log(res);
-    cb(res.rows);
-  });
-};
+// exports.searchSortTranswithAuth = (search, sort_by, sort_type, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
+//   db.query(`SELECT * FROM transactions WHERE recipient_id LIKE '%${search}%' ORDER BY ${sort_by} ${sort_type} LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
+//     // console.log(res);
+//     cb(res.rows);
+//   });
+// };
 
 exports.countAllTranswithAuth = (search, cb)=>{
   db.query(`SELECT * FROM transactions WHERE recipient_id LIKE '%${search}%'`, (err, res)=>{
