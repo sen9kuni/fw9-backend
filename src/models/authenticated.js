@@ -32,25 +32,25 @@ exports.register = (data, cb)=> {
   });
 };
 
-exports.trasfer = (sender_id, data, cb)=> {
+exports.trasfer = (sender_id, amount, data, cb)=> {
   db.query('BEGIN', err => {
     if (err){
       cb(err);
     } else {
       const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5, $6) RETURNING amount, recipient_id, sender_id, note, time, type_id_trans';
-      const val =[data.amount, data.recipient_id, sender_id, data.note, data.time, data.type_id_trans];
+      const val =[amount, data.recipient_id, sender_id, data.note, data.time, data.type_id_trans];
       db.query(q, val, (err, res1) => {
         if (err){
           cb(err);
         } else {
           const updateProfileSender = 'UPDATE profile SET balance = balance - $1 WHERE user_id = $2';
-          const valProfileSender = [data.amount, res1.rows[0].sender_id];
+          const valProfileSender = [amount, res1.rows[0].sender_id];
           db.query(updateProfileSender, valProfileSender, (err, res) => {
             if (err){
               cb(err);
             } else {
               const updateProfileRecv = 'UPDATE profile SET balance = balance + $1 WHERE user_id = $2';
-              const valProfileRecv = [data.amount, data.recipient_id];
+              const valProfileRecv = [amount, data.recipient_id];
               db.query(updateProfileRecv, valProfileRecv, (err, res)=>{
                 if (err){
                   cb(err);
@@ -86,5 +86,36 @@ exports.historyTransactions = (id, searchBy, keyword, orderBy, sortType, limit=p
 exports.countHistoryTransactions = (id, searchBy, keyword, cb)=>{
   db.query(`SELECT * FROM transactions WHERE recipient_id=${id} OR sender_id=${id} AND ${searchBy} LIKE '%${keyword}%'`, (err, res)=>{
     cb(err, res.rowCount);
+  });
+};
+
+exports.topUp = (recipient_id, amount, type_id_trans, data, cb) => {
+  db.query('BEGIN', err => {
+    if (err){
+      cb(err);
+    } else {
+      const q = 'INSERT INTO transactions(amount, recipient_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5) RETURNING amount, recipient_id, note, time, type_id_trans';
+      const val =[amount, recipient_id, data.note, data.time, type_id_trans];
+      db.query(q, val, (err, res1) => {
+        if (err){
+          cb(err);
+        } else {
+          const updateProfileSender = 'UPDATE profile SET balance = balance + $1 WHERE user_id = $2';
+          const valProfileSender = [amount, res1.rows[0].recipient_id];
+          db.query(updateProfileSender, valProfileSender, (err, res) => {
+            if (err){
+              cb(err);
+            } else {
+              cb(err, res1);
+              db.query('COMMIT', err => {
+                if (err) {
+                  console.error('Error trasfer', err.stack);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
   });
 };

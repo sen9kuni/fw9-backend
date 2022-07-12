@@ -23,3 +23,8 @@ exports.changePin = [
 exports.editPhone = [
   body('phonenumber').isLength({min: 12}).withMessage('Phone number length minimal 12')
 ];
+
+exports.transfer = [
+  body('amount').isNumeric().withMessage('Amount must number')
+    .notEmpty().isInt({min:1}).withMessage('Wrong input amount'),
+];

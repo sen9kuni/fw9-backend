@@ -13,7 +13,8 @@ authenticated.get('/historyTransactions', authMiddelware, authenticatedControlle
 
 // POST
 authenticated.post('/phone', authMiddelware, authenticatedController.addPhone);
-authenticated.post('/transfer', authMiddelware, authenticatedController.transfer);
+authenticated.post('/transfer', authMiddelware, rule.transfer, authenticatedController.transfer);
+authenticated.post('/topup', authMiddelware, rule.transfer, authenticatedController.topUp);
 
 // PATCH
 authenticated.patch('/profile', authMiddelware, uploadProfile, ...profileValidatorRules, authenticatedController.updateProfile);

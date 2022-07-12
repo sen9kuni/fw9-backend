@@ -120,6 +120,7 @@ exports.changePassword = (id, password, cb)=>{
   const q = 'UPDATE users SET password=$1 WHERE id=$2';
   const val = [password, id];
   db.query(q, val, (err, res)=>{
+    // console.log(res);
     if (res) {
       cb(err, res);
     }else{
@@ -128,11 +129,10 @@ exports.changePassword = (id, password, cb)=>{
   });
 };
 
-exports.changePin = (id, data, cb)=>{
+exports.changePin = (id, pin, cb)=>{
   const q = 'UPDATE users SET pin=$1 WHERE id=$2';
-  const val = [data.pin, id];
+  const val = [pin, id];
   db.query(q, val, (err, res)=>{
-    console.log(res);
     if (res) {
       cb(err, res);
     }else{

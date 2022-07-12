@@ -14,34 +14,11 @@ exports.profile = (req, res)=>{
   });
 };
 
-// not work yet
-// exports.searchSortTrans = (req, res) => {
-//   const search = parseInt(req.authUser.id);
-//   const {sort_by='', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
-
-//   const offset = (page - 1) * limit;
-//   transactionModel.searchSortTranswithAuth(parseInt(search), sort_by, sort_type, limit, offset, (results)=>{
-//     if (results.length < 1) {
-//       return res.redirect('/404');
-//     }
-//     const pageInfo = {};
-
-//     transactionModel.countAllTranswithAuth(search, (err, totalData)=>{
-//       pageInfo.totalData = totalData;
-//       pageInfo.totalPage = Math.ceil(totalData/limit);
-//       pageInfo.currentPage = parseInt(page);
-//       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
-//       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
-//       return response(res, 'List all Transaction User', results, pageInfo);
-//     });
-//   });
-// };
-// not work yet
-
 exports.historyTransactions = (req, res) =>{
   const id = parseInt(req.authUser.id);
-  const {searchBy='note', search='',sortBy='time',sortType='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
-  authModel.historyTransactions(id, searchBy, search, sortBy, sortType, limit, page, (err, results)=>{
+  const {searchBy='note', search='',sortBy='id',sortType='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+  const offset = (page - 1) * limit;
+  authModel.historyTransactions(id, searchBy, search, sortBy, sortType, limit, offset, (err, results)=>{
     if (results.length < 1) {
       return res.redirect('/404');
     }
@@ -81,11 +58,51 @@ exports.addPhone = (req, res) => {
 
 exports.transfer = (req, res)=>{
   const sender_id = req.authUser.id;
-  authModel.trasfer(sender_id, req.body, (err, results)=>{
-    if (err) {
-      return errorResponse(err, res);
+  const {amount, pin} = req.body;
+  userModel.getUserById(sender_id,(err, results)=>{
+    if (results.rows.length > 0){
+      const user = results.rows[0];
+      profileModel.getProfileByUserIdTf(sender_id,(err, results2)=>{
+        if(results2.rows.length > 0){
+          const profile = results2.rows[0];
+          if(parseInt(profile.balance) >= parseInt(amount)){
+            if(pin == user.pin){
+              authModel.trasfer(sender_id, amount, req.body, (err, results3)=>{
+                if (err) {
+                  return errorResponse(err, res);
+                } else {
+                  return response(res, `Transaction is successfully, balance left: Rp.${profile.balance - results3.rows[0].amount}`, results3.rows[0]);
+                }
+              });
+            } else {
+              return response(res, 'Wrong input Pin', null, null, 400);
+            }
+          } else {
+            return response(res, 'Balance not enough', null, null, 400);
+          }
+        }
+      });
     } else {
-      return response(res, 'Transaction is successfully', results.rows[0]);
+      return response(res, 'User not found', null, null, 400);
+    }
+  });
+};
+
+exports.topUp = (req, res)=>{
+  const recipient_id = req.authUser.id;
+  const {amount, type_id_trans=2} = req.body;
+  profileModel.getProfileByUserIdTf(recipient_id,(err, results1)=>{
+    if(results1.rows.length > 0){
+      const profile = results1.rows[0];
+      authModel.topUp(recipient_id, amount, type_id_trans, req.body, (err, results)=>{
+        if (err) {
+          return errorResponse(err, res);
+        } else {
+          return response(res, `TopUp is successfully, balance left: Rp.${parseInt(profile.balance) + parseInt(results.rows[0].amount)}`, results.rows[0]);
+        }
+      });
+    } else {
+      return response(res, 'Profile not found', null, null, 400);
     }
   });
 };
@@ -118,11 +135,23 @@ exports.editPassword = (req, res)=>{
 
 exports.editPin = (req, res)=>{
   const id = parseInt(req.authUser.id);
-  userModel.changePin(id, req.body, (err)=>{
-    if (err) {
-      return errorResponse(err, res);
-    }else{
-      return response(res, 'Change Pin successfully');
+  const {currentPin, newPin} = req.body;
+  userModel.getUserById(id, (err, results)=>{
+    if (results.rows.length > 0) {
+      const user = results.rows[0];
+      if (currentPin === user.pin) {
+        userModel.changePin(id, newPin, (err)=>{
+          if (err) {
+            return errorResponse(err, res);
+          }else{
+            return response(res, 'Change Pin successfully');
+          }
+        });
+      } else {
+        return response(res, 'Current Pin is wrong', null, null, 400);
+      }
+    } else {
+      return response(res, 'User not found', null, null, 400);
     }
   });
 };
@@ -141,7 +170,6 @@ exports.editPhonenumber = (req, res)=>{
 exports.changePasswordTest = (req, res)=>{
   const id = parseInt(req.authUser.id);
   const {currentPassword, newPassword} = req.body;
-  // console.log(newPassword);
   userModel.getUserById(id, (err, results)=>{
     if (results.rows.length < 1) {
       return response(res, 'User not found', null, null, 400);
@@ -149,17 +177,19 @@ exports.changePasswordTest = (req, res)=>{
     const user = results.rows[0];
     bcrypt.compare(currentPassword, user.password)
       .then((cpRes)=>{
-        console.log(cpRes);
-        console.log(newPassword);
+        // console.log(cpRes);
+        // console.log(newPassword);
         if (cpRes){
           userModel.changePassword(id, newPassword, (err)=>{
-            console.log(err);
+            // console.log('a'+ err);
             if (err) {
               return errorResponse(err, res);
             }else{
               return response(res, 'Change Password successfully');
             }
           });
+        } else {
+          return response(res, 'Password not match1', null, null, 400);
         }
       })
       .catch(() =>{

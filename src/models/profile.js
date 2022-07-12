@@ -104,6 +104,18 @@ exports.getProfileByUserId = (user_id, cb)=>{
   });
 };
 
+exports.getProfileByUserIdTf = (user_id, cb)=>{
+  const q = 'SELECT * FROM profile WHERE user_id=$1';
+  const val = [user_id];
+  db.query(q, val, (err, res)=>{
+    if (res) {
+      cb(err, res);
+    }else{
+      cb(err);
+    }
+  });
+};
+
 
 exports.searchSortProfile = (searchBy, keyword, sort_by, sort_type, limit=parseInt(LIMIT_DATA), offset=0, cb)=>{
   db.query(`SELECT * FROM profile WHERE ${searchBy} LIKE '%${keyword}%' ORDER BY ${sort_by} ${sort_type} LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
@@ -126,7 +138,6 @@ exports.updateProfileAuth = (user_id, picture, data, cb)=>{
   const objt = {
     picture,
     fullname: data.fullname,
-    balance: data.balance,
     phonenumber: data.phonenumber
   };
 

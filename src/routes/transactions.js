@@ -5,7 +5,8 @@ const transactionsControllers = require('../controllers/transactions');
 const { body } = require('express-validator');
 
 const createTransactionsValidator = [
-  body('amount').isNumeric().withMessage('Amount must number'),
+  body('amount').isNumeric().withMessage('Amount must number')
+    .notEmpty().isInt({ min:1}).withMessage('Wrong input amount'),
 ];
 
 const editTransactionsValidator = [

@@ -46,7 +46,7 @@ exports.login = (req, res)=> {
     const user = results.rows[0];
     bcrypt.compare(password, user.password)
       .then((cpRes)=>{
-        console.log(cpRes);
+        // console.log(cpRes);
         if (cpRes) {
           const token = jwt.sign({id: user.id}, process.env.APP_SECRET || 'secretKey');
           return response(res, 'Login success', {token});
