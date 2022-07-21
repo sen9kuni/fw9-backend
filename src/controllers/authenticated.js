@@ -110,11 +110,12 @@ exports.topUp = (req, res)=>{
 exports.updateProfile = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
   let filename = null;
+  const {fullname=null, phonenumber=null} = req.body;
 
   if(req.file){
     filename = req.file.filename;
   }
-  profileModel.updateProfileAuth(user_id,filename, req.body, (err, results)=> {
+  profileModel.updateProfileAuth(user_id,filename, fullname, phonenumber, (err, results)=> {
     if (err) {
       return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
     }
@@ -177,11 +178,8 @@ exports.changePasswordTest = (req, res)=>{
     const user = results.rows[0];
     bcrypt.compare(currentPassword, user.password)
       .then((cpRes)=>{
-        // console.log(cpRes);
-        // console.log(newPassword);
         if (cpRes){
           userModel.changePassword(id, newPassword, (err)=>{
-            // console.log('a'+ err);
             if (err) {
               return errorResponse(err, res);
             }else{

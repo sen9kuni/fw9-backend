@@ -130,15 +130,15 @@ exports.countAllProfile = (keyword, cb)=>{
 };
 
 // auth
-exports.updateProfileAuth = (user_id, picture, data, cb)=>{
+exports.updateProfileAuth = (user_id, picture, fullname, phonenumber, cb)=>{
   let val = [user_id];
 
   const filtered = {};
 
   const objt = {
     picture,
-    fullname: data.fullname,
-    phonenumber: data.phonenumber
+    fullname,
+    phonenumber
   };
 
   for(let x in objt){
@@ -147,10 +147,8 @@ exports.updateProfileAuth = (user_id, picture, data, cb)=>{
       val.push(objt[x]);
     }
   }
-
   const key = Object.keys(filtered);
   const finalResult = key.map((o, ind)=> `${o}=$${ind+2}`);
-
   const q = `UPDATE profile SET ${finalResult} WHERE user_id=$1 RETURNING *`;
   db.query(q, val, (err, res)=>{
     cb(err, res);
