@@ -110,12 +110,12 @@ exports.topUp = (req, res)=>{
 exports.updateProfile = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
   let filename = null;
-  const {fullname=null, phonenumber=null} = req.body;
+  const {fullname=null, phonenumber=null, first_name=null, last_name=null} = req.body;
 
   if(req.file){
-    filename = req.file.filename;
+    filename = req.file.path;
   }
-  profileModel.updateProfileAuth(user_id,filename, fullname, phonenumber, (err, results)=> {
+  profileModel.updateProfileAuth(user_id, filename, fullname, phonenumber, first_name, last_name,  (err, results)=> {
     if (err) {
       return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
     }
@@ -187,11 +187,46 @@ exports.changePasswordTest = (req, res)=>{
             }
           });
         } else {
-          return response(res, 'Password not match1', null, null, 400);
+          return response(res, 'Current Password is wrong', null, null, 400);
         }
       })
       .catch(() =>{
         return response(res, 'Password not match', null, null, 400);
       });
+  });
+};
+
+exports.joinUserAndProfile = (req, res)=>{
+  const id = parseInt(req.authUser.id);
+  authModel.getUserAndProfile(id, (results)=>{
+    return response(res, 'user with profile', results[0]);
+  });
+};
+
+exports.joinHistoryTransactions = (req, res)=>{
+  const id = parseInt(req.authUser.id);
+  authModel.getJoinHistoryTransactions(id, (results)=>{
+    return response(res, 'history transaction', results);
+  });
+};
+
+exports.joinHistoryTransactionsMk2 = (req, res) => {
+  const id = parseInt(req.authUser.id);
+  const {limit=parseInt(LIMIT_DATA), page=1} = req.query;
+  const offset = (page - 1) * limit;
+  authModel.getJoinHistoryTransactionsMk2(id, limit, offset, (err, results)=>{
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    authModel.getCountJoinHistoryTransactions(id, (err, totalData)=>{
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+      return response(res, 'List history Transaction User', results, pageInfo);
+    });
   });
 };

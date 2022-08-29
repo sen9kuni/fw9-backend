@@ -1,9 +1,11 @@
 require('dotenv').config();
+var cors = require('cors');
+
 const express = require('express');
 global.__basepath = __dirname;
 
-
 const app = express();
+app.use(cors());
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('assets'));

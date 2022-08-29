@@ -119,3 +119,33 @@ exports.topUp = (recipient_id, amount, type_id_trans, data, cb) => {
     }
   });
 };
+
+exports.getUserAndProfile = (id, cb) => {
+  db.query(`SELECT email, username, pin, profile.fullname, profile.phonenumber, profile.balance, profile.picture FROM users JOIN profile ON profile.user_id = users.id WHERE users.id = ${id}`, (err, res)=>{
+    cb(res.rows);
+  });
+};
+
+exports.getJoinHistoryTransactions = (id, cb)=>{
+  db.query(`SELECT transactions.id, t3.name type, amount, t1.username receiver, t2.username sender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ASC`, (err, res)=>{
+    cb(res.rows);
+  });
+};
+
+exports.getCountJoinHistoryTransactions = (id, cb)=>{
+  db.query(`SELECT * FROM transactions WHERE recipient_id=${id} OR sender_id=${id}`, (err, res)=>{
+    cb(err, res.rowCount);
+  });
+};
+
+exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), offset=0, cb) => {
+  const q = `SELECT transactions.id, t3.name type, amount, t1.username receiver, t4.picture imgReceiver, t2.username sender, t5.picture imgSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ASC LIMIT $1 OFFSET $2`;
+  const val = [limit, offset];
+  db.query(q, val, (err, res)=>{
+    if (res) {
+      cb(err, res.rows);
+    }else{
+      cb(err);
+    }
+  });
+};

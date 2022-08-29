@@ -130,7 +130,7 @@ exports.countAllProfile = (keyword, cb)=>{
 };
 
 // auth
-exports.updateProfileAuth = (user_id, picture, fullname, phonenumber, cb)=>{
+exports.updateProfileAuth = (user_id, picture, fullname, phonenumber, first_name, last_name, cb)=>{
   let val = [user_id];
 
   const filtered = {};
@@ -138,13 +138,17 @@ exports.updateProfileAuth = (user_id, picture, fullname, phonenumber, cb)=>{
   const objt = {
     picture,
     fullname,
-    phonenumber
+    phonenumber,
+    first_name,
+    last_name
   };
 
   for(let x in objt){
     if (objt[x]!==null) {
-      filtered[x] = objt[x];
-      val.push(objt[x]);
+      if(objt[x]!==undefined){
+        filtered[x] = objt[x];
+        val.push(objt[x]);
+      }
     }
   }
   const key = Object.keys(filtered);

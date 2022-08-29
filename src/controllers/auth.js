@@ -49,7 +49,9 @@ exports.login = (req, res)=> {
         // console.log(cpRes);
         if (cpRes) {
           const token = jwt.sign({id: user.id}, process.env.APP_SECRET || 'secretKey');
-          return response(res, 'Login success', {token});
+          const id = user.id;
+          const pin = user.pin;
+          return response(res, 'Login success', {id, pin, token});
         }
         return response(res, 'Email or Password not match', null, null, 400);
       })

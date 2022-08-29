@@ -1,14 +1,27 @@
-const path = require('path');
-const multer = require('multer');
+// const path = require('path');
+// const multer = require('multer');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(global.__basepath, 'assets', 'uploads'));
-  },
-  filename: (req, file, cb) => {
-    const timestamp = new Date().getTime();
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `${timestamp}.${ext}`);
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinaryUpload = require('./cloudinary');
+
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.join(global.__basepath, 'assets', 'uploads'));
+//   },
+//   filename: (req, file, cb) => {
+//     const timestamp = new Date().getTime();
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `${timestamp}.${ext}`);
+//   }
+// });
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinaryUpload,
+  params: {
+    folder: 'boo-wallet-img-profile',
+    format: async (req, file) => 'png',
+    public_id: (req, file) => new Date().getTime()
   }
 });
 
