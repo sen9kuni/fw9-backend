@@ -32,6 +32,37 @@ exports.register = (data, cb)=> {
   });
 };
 
+exports.registerMk2 = (data, cb)=> {
+  db.query('BEGIN', err => {
+    if (err){
+      cb(err);
+    } else {
+      const q = 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING id';
+      const val =[data.email, data.password];
+      db.query(q, val, (err, res) => {
+        if (err){
+          cb(err);
+        } else {
+          const insertprofile = 'INSERT INTO profile(user_id, first_name, last_name) VALUES ($1, $2, $3)';
+          const insertprofileVal = [res.rows[0].id, data.first_name, data.last_name];
+          db.query(insertprofile, insertprofileVal, (err, res) => {
+            if (err){
+              cb(err);
+            }else {
+              cb(err, res);
+              db.query('COMMIT', err => {
+                if (err) {
+                  console.error('Error registrasion', err.stack);
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+};
+
 exports.trasfer = (sender_id, amount, data, cb)=> {
   db.query('BEGIN', err => {
     if (err){
@@ -121,7 +152,7 @@ exports.topUp = (recipient_id, amount, type_id_trans, data, cb) => {
 };
 
 exports.getUserAndProfile = (id, cb) => {
-  db.query(`SELECT email, username, pin, profile.fullname, profile.phonenumber, profile.balance, profile.picture FROM users JOIN profile ON profile.user_id = users.id WHERE users.id = ${id}`, (err, res)=>{
+  db.query(`SELECT email, username, profile.fullname, profile.first_name, profile.last_name, profile.phonenumber, profile.balance, profile.picture FROM users JOIN profile ON profile.user_id = users.id WHERE users.id = ${id}`, (err, res)=>{
     cb(res.rows);
   });
 };
@@ -139,11 +170,35 @@ exports.getCountJoinHistoryTransactions = (id, cb)=>{
 };
 
 exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), offset=0, cb) => {
-  const q = `SELECT transactions.id, t3.name type, amount, t1.username receiver, t4.picture imgReceiver, t2.username sender, t5.picture imgSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ASC LIMIT $1 OFFSET $2`;
+  const q = `SELECT transactions.id, t3.name type, amount, t4.user_id receiverId, t4.first_name receiverFirstName, t4.last_name receiverLastName, t4.picture imgReceiver, t5.first_name senderFirstName, t5.last_name senderLastName, t5.picture imgSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time DESC LIMIT $1 OFFSET $2`;
   const val = [limit, offset];
   db.query(q, val, (err, res)=>{
     if (res) {
       cb(err, res.rows);
+    }else{
+      cb(err);
+    }
+  });
+};
+
+exports.searchSortUsers = (search, sort, limit=parseInt(LIMIT_DATA), offset=0, cb)=> {
+  db.query(`SELECT id, user_id, first_name, last_name, phonenumber, picture FROM profile WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%' ORDER BY lower(${sort}) ASC LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
+    cb(res.rows);
+  });
+};
+
+// option lower(${sort})
+
+exports.countSearchSortUsers = (search, cb)=> {
+  db.query(`SELECT * FROM profile WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%'`, (err, res)=>{
+    cb(err, res.rowCount);
+  });
+};
+
+exports.getProfileById = (user_id, cb) => {
+  db.query(`SELECT id, user_id, first_name, last_name, phonenumber, picture FROM profile where user_id = ${parseInt(user_id)}`, (err, res)=> {
+    if (res) {
+      cb(res.rows);
     }else{
       cb(err);
     }

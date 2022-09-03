@@ -71,3 +71,13 @@ exports.register2 = (req, res) =>{
     return response(res, 'Register successfully');
   });
 };
+
+exports.register3 = (req, res) =>{
+  req.body.pin = null;
+  authmodel.registerMk2(req.body, (err)=> {
+    if(err){
+      return errorResponse(err, res);
+    }
+    return response(res, 'Register successfully');
+  });
+};

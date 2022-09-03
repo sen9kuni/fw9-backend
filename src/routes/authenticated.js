@@ -14,6 +14,12 @@ authenticated.get('/joinTransactionsJoin', authMiddelware, authenticatedControll
 authenticated.get('/historyTransactions', authMiddelware, authenticatedController.historyTransactions);
 // not work yet
 
+// get all profile/user
+authenticated.get('/getAllUsers', authMiddelware, authenticatedController.searchSortProfile);
+authenticated.get('/getAllUsersMk', authenticatedController.searchSortProfileMk2);
+authenticated.get('/getUserById/:user_id', authenticatedController.getProfileById);
+// get all profile/user
+
 // POST
 authenticated.post('/phone', authMiddelware, authenticatedController.addPhone);
 authenticated.post('/transfer', authMiddelware, rule.transfer, authenticatedController.transfer);
@@ -21,6 +27,7 @@ authenticated.post('/topup', authMiddelware, rule.transfer, authenticatedControl
 
 // PATCH
 authenticated.patch('/profile', authMiddelware, uploadProfile, ...profileValidatorRules, authenticatedController.updateProfile);
+authenticated.patch('/profileName', authMiddelware, ...profileValidatorRules, authenticatedController.updateProfileName);
 authenticated.patch('/changePassword', authMiddelware, rule.changePassword, authenticatedController.changePasswordTest);
 authenticated.patch('/changePin', authMiddelware, rule.changePin, authenticatedController.editPin);
 authenticated.patch('/phone', authMiddelware, rule.editPhone, authenticatedController.editPhonenumber);

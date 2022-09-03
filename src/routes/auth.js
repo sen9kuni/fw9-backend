@@ -9,6 +9,7 @@ const validator = require('../middleware/validation');
 
 // experiment
 auth.post('/register', rule.register, validator, authController.register2);
+auth.post('/registerNew', rule.register, validator, authController.register3);
 
 auth.post('/createPin', rule.createPin, validator, authController.createPin);
 auth.post('/login',rule.login, validator, authController.login);

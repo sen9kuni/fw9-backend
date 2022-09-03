@@ -71,7 +71,8 @@ exports.transfer = (req, res)=>{
                 if (err) {
                   return errorResponse(err, res);
                 } else {
-                  return response(res, `Transaction is successfully, balance left: Rp.${profile.balance - results3.rows[0].amount}`, results3.rows[0]);
+                  // return response(res, `Transaction is successfully, balance left: Rp.${profile.balance - results3.rows[0].amount}`, results3.rows[0]);
+                  return response(res, 'Transaction is successfully', results3.rows[0]);
                 }
               });
             } else {
@@ -120,6 +121,18 @@ exports.updateProfile = (req, res)=>{
       return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
     }
     return response(res, 'Profile updated', results.rows[0]);
+  });
+};
+
+exports.updateProfileName = (req, res)=>{
+  const user_id = parseInt(req.authUser.id);
+  const {first_name=null, last_name=null} = req.body;
+
+  profileModel.updateProfileName(user_id, first_name, last_name, (err, results)=> {
+    if (err) {
+      return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
+    }
+    return response(res, 'Profile name updated', results);
   });
 };
 
@@ -228,5 +241,57 @@ exports.joinHistoryTransactionsMk2 = (req, res) => {
       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
       return response(res, 'List history Transaction User', results, pageInfo);
     });
+  });
+};
+
+exports.searchSortProfile = (req, res) => {
+  const {searchBy='', search='', sort_by='id', sort_type='ASC', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+
+  const offset = (page - 1) * limit;
+  profileModel.searchSortProfile(searchBy, search, sort_by, sort_type, limit, offset, (results)=>{
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    profileModel.countAllProfile(search, (err, totalData)=>{
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+      return response(res, 'List all Profile search', results, pageInfo);
+    });
+  });
+};
+
+exports.searchSortProfileMk2 = (req, res)=> {
+  const {search = '', sort = 'first_name', limit=parseInt(LIMIT_DATA), page=1} = req.query;
+
+  const offset = (page - 1) * limit;
+  authModel.searchSortUsers(search, sort, limit, offset, (results)=>{
+    // if (results === undefined) {
+    //   return res.redirect('/404');
+    // } else
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    authModel.countSearchSortUsers(search, (err, totalData)=>{
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page, 10);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo - 1 : null;
+      return response(res, 'List all Profile search', results, pageInfo);
+    });
+  });
+};
+
+exports.getProfileById = (req, res)=>{
+  const {user_id} = req.params;
+  authModel.getProfileById(user_id, (results)=>{
+    return response(res, 'Profile search', results);
   });
 };
