@@ -6,11 +6,37 @@ const authModel = require('../models/authenticated');
 const errorResponse = require('../helpers/errorResponse');
 const {LIMIT_DATA} = process.env;
 const bcrypt = require('bcrypt');
+const cloudinary = require('cloudinary').v2;
 
 exports.profile = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
   profileModel.getProfileByUserId(user_id, (results)=>{
     return response(res, 'profile user', results[0]);
+  });
+};
+
+exports.deletePicture = (req, res) => {
+  const user_id = parseInt(req.authUser.id);
+  profileModel.getProfileByUserId(user_id, (results)=> {
+    if (results[0].picture !== null && results[0].picture !== undefined) {
+      const nameFolder = results[0].picture.split('/')[7];
+      const nameFileFull = results[0].picture.split('/')[results[0].picture.split('/').length-1];
+      const nameFile = nameFileFull.split('.')[0];
+      // const publicUrl = `${nameFolder}/${nameFile}`;
+      // return response(res, 'image deleted', {nameFolder, nameFileFull, nameFile, publicUrl});
+      cloudinary.uploader.destroy(`${nameFolder}/${nameFile}`, (err, resultsDelete)=>{
+        if (err) {
+          return errorResponse(err, res);
+        } else {
+          authModel.deleteImage(user_id, (err, results)=> {
+            return response(res, 'your picture is deleted', results.rows[0]);
+            // }
+          });
+        }
+      });
+    } else {
+      return response(res, 'picture empty');
+    }
   });
 };
 
@@ -116,11 +142,39 @@ exports.updateProfile = (req, res)=>{
   if(req.file){
     filename = req.file.path;
   }
-  profileModel.updateProfileAuth(user_id, filename, fullname, phonenumber, first_name, last_name,  (err, results)=> {
-    if (err) {
-      return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
+  // profileModel.updateProfileAuth(user_id, filename, fullname, phonenumber, first_name, last_name,  (err, results)=> {
+  //   if (err) {
+  //     return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
+  //   }
+  //   return response(res, 'Profile updated', results.rows[0]);
+  // });
+  profileModel.getProfileByUserId(user_id, (results)=> {
+    if (results[0].picture !== null && results[0].picture !== undefined) {
+      const nameFolder = results[0].picture.split('/')[7];
+      const nameFileFull = results[0].picture.split('/')[results[0].picture.split('/').length-1];
+      const nameFile = nameFileFull.split('.')[0];
+      cloudinary.uploader.destroy(`${nameFolder}/${nameFile}`, (err, resultsDelete)=>{
+        if (err) {
+          return errorResponse(err, res);
+        } else {
+          authModel.deleteImage(user_id, (err, results)=> {
+            profileModel.updateProfileAuth(user_id, filename, fullname, phonenumber, first_name, last_name,  (err, results)=> {
+              if (err) {
+                return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
+              }
+              return response(res, 'Profile updated', results.rows[0]);
+            });
+          });
+        }
+      });
+    } else {
+      profileModel.updateProfileAuth(user_id, filename, fullname, phonenumber, first_name, last_name,  (err, results)=> {
+        if (err) {
+          return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
+        }
+        return response(res, 'Profile updated', results.rows[0]);
+      });;
     }
-    return response(res, 'Profile updated', results.rows[0]);
   });
 };
 

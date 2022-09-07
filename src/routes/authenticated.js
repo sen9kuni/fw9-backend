@@ -7,6 +7,7 @@ const rule = require('./validator/authenticated');
 
 // GET
 authenticated.get('/profile', authMiddelware, authenticatedController.profile);
+authenticated.get('/deletePicture', authMiddelware, authenticatedController.deletePicture);
 authenticated.get('/joinUserAndProfile', authMiddelware, authenticatedController.joinUserAndProfile);
 authenticated.get('/joinTransactions', authMiddelware, authenticatedController.joinHistoryTransactions);
 authenticated.get('/joinTransactionsJoin', authMiddelware, authenticatedController.joinHistoryTransactionsMk2);

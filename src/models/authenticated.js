@@ -204,3 +204,14 @@ exports.getProfileById = (user_id, cb) => {
     }
   });
 };
+
+exports.deleteImage = (user_id, cb) => {
+  db.query(`UPDATE profile set picture = NULL WHERE user_id = ${parseInt(user_id)} RETURNING first_name, last_name, fullname, phonenumber, picture, balance`, (err, res)=>{
+    // if (res) {
+    //   cb(res.rows);
+    // }else{
+    //   cb(err);
+    // }
+    cb(err, res);
+  });
+};
