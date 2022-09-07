@@ -48,7 +48,7 @@ exports.login = (req, res)=> {
       .then((cpRes)=>{
         // console.log(cpRes);
         if (cpRes) {
-          const token = jwt.sign({id: user.id}, process.env.APP_SECRET || 'secretKey', {expiresIn: '1h'});
+          const token = jwt.sign({id: user.id}, process.env.APP_SECRET || 'secretKey', {expiresIn: '24h'});
           const id = user.id;
           const pin = user.pin;
           const email = user.email;
