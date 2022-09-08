@@ -1,10 +1,11 @@
 const userModel = require('../models/users');
 const authmodel = require('../models/authenticated');
+const notifModel= require('../models/notifications');
 const response = require('../helpers/standardRespond');
 const errorResponse = require('../helpers/errorResponse');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const admin = require('../helpers/firebaseNotif');
 
 exports.register = (req, res) => {
   req.body.pin = null;
@@ -38,7 +39,7 @@ exports.createPin = (req, res) => {
 };
 
 exports.login = (req, res)=> {
-  const {email, password} = req.body;
+  const {email, password, tokenNotif} = req.body;
   userModel.getUserByEmail(email, (err, results)=>{
     if (results.rows.length < 1) {
       return response(res, 'User not found', null, null, 400);
@@ -52,6 +53,16 @@ exports.login = (req, res)=> {
           const id = user.id;
           const pin = user.pin;
           const email = user.email;
+          notifModel.updateUserToken(id, tokenNotif, (err)=> {
+            if(err){
+              return errorResponse(err, res);
+            }
+            const message = {notification: {title: 'login', body: `wellcome ${user.email}`}};
+            admin.messaging().sendToDevice(tokenNotif, message, {priority: 'high'}).then(response => {
+              console.log(response);
+            }).catch(console.log('error'));
+            // return response(res, 'Login success', {id, pin, token, email});
+          });
           return response(res, 'Login success', {id, pin, token, email});
         }
         return response(res, 'Email or Password not match', null, null, 400);
@@ -61,6 +72,13 @@ exports.login = (req, res)=> {
       });
   });
 };
+
+// const tokenFirebase = 'egULZA7MTA-asbpSY-BXyZ:APA91bHUddRi68BCji9X0R0Oesch8LEImu89T-vFvPAJLdAozmAgMKs1cUQVr7ulwslbuS_-Z84Iw9DVsdxuNcnmhZ_vB0IGdPOGB6GaCfXpsJvYQ1Ou4r7mhvRjieyfVdU4ytKKo4fQ';
+// const message = {notification: {title: 'login', body: `wellcome ${user.email}`}};
+// admin.messaging().sendToDevice(tokenFirebase, message, {priority: 'high'}).then(response => {
+//   console.log(response);
+// }).catch(console.log('error'));
+// return response(res, 'Login success', {id, pin, token, email});
 
 exports.register2 = (req, res) =>{
   req.body.pin = null;
@@ -79,5 +97,32 @@ exports.register3 = (req, res) =>{
       return errorResponse(err, res);
     }
     return response(res, 'Register successfully');
+  });
+};
+
+exports.createTokenNotif = (req, res) => {
+  const {token} = req.body;
+  notifModel.getDataByToken(token, (err, results)=> {
+    // return response(res, 'set token successfully', results.rows.length);
+    if (results.rows.length > 0) {
+      return response(res, 'Error: token already exits', null, null, 400);
+    } else {
+      notifModel.createToken(token, (err, resultsToken)=> {
+        if(err){
+          return errorResponse(err, res);
+        }
+        return response(res, 'set token successfully', resultsToken);
+      });
+    }
+  });
+};
+
+exports.removeUserFromToken = (req, res) => {
+  const {token} = req.body;
+  notifModel.deleteUserToken(token, (err)=> {
+    if(err){
+      return errorResponse(err, res);
+    }
+    return response(res, 'delete user from token successfully');
   });
 };
