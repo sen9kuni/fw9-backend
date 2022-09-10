@@ -11,6 +11,9 @@ authenticated.patch('/deletePicture', authMiddelware, authenticatedController.de
 authenticated.get('/joinUserAndProfile', authMiddelware, authenticatedController.joinUserAndProfile);
 authenticated.get('/joinTransactions', authMiddelware, authenticatedController.joinHistoryTransactions);
 authenticated.get('/joinTransactionsJoin', authMiddelware, authenticatedController.joinHistoryTransactionsMk2);
+authenticated.get('/joinTNotificationJoin', authMiddelware, authenticatedController.joinHistoryNotif);
+authenticated.get('/countNotifications', authMiddelware, authenticatedController.countNotifications);
+authenticated.patch('/readNotification/:id', authMiddelware, authenticatedController.readNotification);
 // not work yet
 authenticated.get('/historyTransactions', authMiddelware, authenticatedController.historyTransactions);
 // not work yet
@@ -19,6 +22,7 @@ authenticated.get('/historyTransactions', authMiddelware, authenticatedControlle
 authenticated.get('/getAllUsers', authMiddelware, authenticatedController.searchSortProfile);
 authenticated.get('/getAllUsersMk', authenticatedController.searchSortProfileMk2);
 authenticated.get('/getUserById/:user_id', authenticatedController.getProfileById);
+authenticated.get('/getDataTokenById/:user_id', authenticatedController.getInfoTokenBytId);
 // get all profile/user
 
 // POST

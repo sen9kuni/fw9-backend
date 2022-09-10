@@ -68,7 +68,7 @@ exports.trasfer = (sender_id, amount, data, cb)=> {
     if (err){
       cb(err);
     } else {
-      const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5, $6) RETURNING amount, recipient_id, sender_id, note, time, type_id_trans';
+      const q = 'INSERT INTO transactions(amount, recipient_id, sender_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, amount, recipient_id, sender_id, note, time, type_id_trans';
       const val =[amount, data.recipient_id, sender_id, data.note, data.time, data.type_id_trans];
       db.query(q, val, (err, res1) => {
         if (err){
@@ -86,10 +86,18 @@ exports.trasfer = (sender_id, amount, data, cb)=> {
                 if (err){
                   cb(err);
                 }else {
-                  cb(err, res1);
-                  db.query('COMMIT', err => {
-                    if (err) {
-                      console.error('Error trasfer', err.stack);
+                  const q = 'INSERT INTO notification(user_id, trans_id) VALUES ($1, $2)';
+                  const val = [sender_id, res1.rows[0].id];
+                  db.query(q, val, (err, res)=> {
+                    if (err){
+                      cb(err);
+                    } else {
+                      cb(err, res1);
+                      db.query('COMMIT', err => {
+                        if (err) {
+                          console.error('Error trasfer', err.stack);
+                        }
+                      });
                     }
                   });
                 }
@@ -125,7 +133,7 @@ exports.topUp = (recipient_id, amount, type_id_trans, data, cb) => {
     if (err){
       cb(err);
     } else {
-      const q = 'INSERT INTO transactions(amount, recipient_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5) RETURNING amount, recipient_id, note, time, type_id_trans';
+      const q = 'INSERT INTO transactions(amount, recipient_id, note, time, type_id_trans) VALUES ($1, $2, $3, $4, $5) RETURNING id, amount, recipient_id, note, time, type_id_trans';
       const val =[amount, recipient_id, data.note, data.time, type_id_trans];
       db.query(q, val, (err, res1) => {
         if (err){
@@ -137,12 +145,19 @@ exports.topUp = (recipient_id, amount, type_id_trans, data, cb) => {
             if (err){
               cb(err);
             } else {
-              cb(err, res1);
-              db.query('COMMIT', err => {
-                if (err) {
-                  console.error('Error trasfer', err.stack);
-                }
-              });
+              const q = 'INSERT INTO notification(user_id, trans_id) VALUES ($1, $2)';
+              const val = [recipient_id, res1.rows[0].id];
+              db.query(q, val, (err, res)=> {
+                if (err){
+                  cb(err);
+                } else {
+                  cb(err, res1);
+                  db.query('COMMIT', err => {
+                    if (err) {
+                      console.error('Error trasfer', err.stack);
+                    }
+                  });
+                }});
             }
           });
         }
@@ -169,8 +184,8 @@ exports.getCountJoinHistoryTransactions = (id, cb)=>{
   });
 };
 
-exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), offset=0, cb) => {
-  const q = `SELECT transactions.id, t3.name type, amount, t4.user_id receiverId, t4.first_name receiverFirstName, t4.last_name receiverLastName, t4.picture imgReceiver, t5.first_name senderFirstName, t5.last_name senderLastName, t5.picture imgSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time DESC LIMIT $1 OFFSET $2`;
+exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), sort_by, offset=0, cb) => {
+  const q = `SELECT transactions.id, t3.name type, amount, t4.user_id receiverId, t4.first_name receiverFirstName, t4.last_name receiverLastName, t4.picture imgReceiver, t5.first_name senderFirstName, t5.last_name senderLastName, t5.picture imgSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ${sort_by} LIMIT $1 OFFSET $2`;
   const val = [limit, offset];
   db.query(q, val, (err, res)=>{
     if (res) {
@@ -200,6 +215,22 @@ exports.getProfileById = (user_id, cb) => {
     if (res) {
       cb(res.rows);
     }else{
+      cb(err);
+    }
+  });
+};
+
+exports.getUserByEmail = (email, cb) => {
+  db.query(`SELECT * FROM users WHERE email=${email}`, (err, res)=>{
+    cb(err, res);
+  });
+};
+
+exports.updatePassword = (password, email, cb) => {
+  db.query(`UPDATE users SET password=${password} WHERE email=${email} RETURNING *`, (err, res)=> {
+    if (res) {
+      cb(err, res.rows);
+    } else {
       cb(err);
     }
   });

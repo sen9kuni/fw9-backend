@@ -17,6 +17,23 @@ exports.register = (req, res) => {
   });
 };
 
+exports.resetPassword = (req, res) => {
+  const {email, newPassword} = req.body;
+  userModel.getUserByEmail(email, (err, results)=>{
+    if (results.rows.length > 0) {
+      userModel.resetPassword(email, newPassword, (err)=>{
+        if (err) {
+          return errorResponse(err, res);
+        }else{
+          return response(res, 'Change Password successfully');
+        }
+      });
+    } else {
+      return response(res, 'Error: Email does not exists', null, null, 400);
+    }
+  });
+};
+
 exports.createPin = (req, res) => {
   const {email}= req.body;
   userModel.getUserByEmail(email, (err, results)=>{
@@ -53,16 +70,18 @@ exports.login = (req, res)=> {
           const id = user.id;
           const pin = user.pin;
           const email = user.email;
-          notifModel.updateUserToken(id, tokenNotif, (err)=> {
-            if(err){
-              return errorResponse(err, res);
-            }
-            const message = {notification: {title: 'login', body: `wellcome ${user.email}`}};
-            admin.messaging().sendToDevice(tokenNotif, message, {priority: 'high'}).then(response => {
-              console.log(response);
-            }).catch(console.log('error'));
-            // return response(res, 'Login success', {id, pin, token, email});
-          });
+          if (tokenNotif !== null && tokenNotif !== undefined) {
+            notifModel.updateUserToken(id, tokenNotif, (err)=> {
+              if(err){
+                return errorResponse(err, res);
+              }
+              const message = {notification: {title: 'login', body: `wellcome ${user.email}`}};
+              admin.messaging().sendToDevice(tokenNotif, message, {priority: 'high'}).then(response => {
+                console.log(response);
+              }).catch(console.log('error'));
+              // return response(res, 'Login success', {id, pin, token, email});
+            });
+          }
           return response(res, 'Login success', {id, pin, token, email});
         }
         return response(res, 'Email or Password not match', null, null, 400);
@@ -72,13 +91,6 @@ exports.login = (req, res)=> {
       });
   });
 };
-
-// const tokenFirebase = 'egULZA7MTA-asbpSY-BXyZ:APA91bHUddRi68BCji9X0R0Oesch8LEImu89T-vFvPAJLdAozmAgMKs1cUQVr7ulwslbuS_-Z84Iw9DVsdxuNcnmhZ_vB0IGdPOGB6GaCfXpsJvYQ1Ou4r7mhvRjieyfVdU4ytKKo4fQ';
-// const message = {notification: {title: 'login', body: `wellcome ${user.email}`}};
-// admin.messaging().sendToDevice(tokenFirebase, message, {priority: 'high'}).then(response => {
-//   console.log(response);
-// }).catch(console.log('error'));
-// return response(res, 'Login success', {id, pin, token, email});
 
 exports.register2 = (req, res) =>{
   req.body.pin = null;

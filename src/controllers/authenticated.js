@@ -7,6 +7,8 @@ const errorResponse = require('../helpers/errorResponse');
 const {LIMIT_DATA} = process.env;
 const bcrypt = require('bcrypt');
 const cloudinary = require('cloudinary').v2;
+const notifModel= require('../models/notifications');
+const admin = require('../helpers/firebaseNotif');
 
 exports.profile = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
@@ -35,7 +37,7 @@ exports.deletePicture = (req, res) => {
         }
       });
     } else {
-      return response(res, 'picture empty');
+      return response(res, 'picture already deleted');
     }
   });
 };
@@ -89,17 +91,56 @@ exports.transfer = (req, res)=>{
     if (results.rows.length > 0){
       const user = results.rows[0];
       profileModel.getProfileByUserIdTf(sender_id,(err, results2)=>{
+        // console.log(results2.rows[0]);
         if(results2.rows.length > 0){
           const profile = results2.rows[0];
           if(parseInt(profile.balance) >= parseInt(amount)){
             if(pin == user.pin){
-              authModel.trasfer(sender_id, amount, req.body, (err, results3)=>{
+              notifModel.getDataById(req.body.recipient_id, (err, resultNotif)=> {
                 if (err) {
-                  return errorResponse(err, res);
-                } else {
-                  // return response(res, `Transaction is successfully, balance left: Rp.${profile.balance - results3.rows[0].amount}`, results3.rows[0]);
-                  return response(res, 'Transaction is successfully', results3.rows[0]);
+                  console.log(err);
                 }
+
+                profileModel.getProfileByUserIdAuth(parseInt(req.body.recipient_id), (err, resultRec)=> {
+                  // console.log(resultRec.rows);
+                  if (err) {
+                    // console.log(err);
+                    return response(res, 'User not found recipient', null, null, 400);
+                  } else {
+                    notifModel.getDataById(sender_id, (err, resultNotifSend)=> {
+                      if (err) {
+                        console.log(err);
+                      }
+                      
+                      authModel.trasfer(sender_id, amount, req.body, (err, results3)=>{
+                        if (err) {
+                          return errorResponse(err, res);
+                        } else {
+                          // return response(res, `Transaction is successfully, balance left: Rp.${profile.balance - results3.rows[0].amount}`, results3.rows[0]);
+                          // notifModel.createNotif(sender_id, req.body.recipient_id, results3.rows.id, (err)=>{
+                          //   if (err) {
+                          //     console.log(err);
+                          //   }
+                          // });
+                          // console.log(results3.rows[0].recipient_id);
+                          if (resultNotifSend.rows.length > 0) {
+                            const message = {notification: {title: 'Transfer', body: `Transfer Rp.${amount} success to ${resultRec.rows[0].first_name} ${resultRec.rows[0].last_name}`}};
+                            admin.messaging().sendToDevice(resultNotifSend.rows[0].token, message, {priority: 'high'}).then(response => {
+                              console.log(response);
+                            }).catch(console.log('error'));
+                          }
+                          if (resultNotif.rows.length > 0) {
+                            const message = {notification: {title: 'Transfer', body: `You get transfer Rp.${amount} from ${results2.rows[0].first_name} ${results2.rows[0].last_name}`}};
+                            admin.messaging().sendToDevice(resultNotif.rows[0].token, message, {priority: 'high'}).then(response => {
+                              console.log(response);
+                            }).catch(console.log('error'));
+                          }
+                          return response(res, 'Transaction is successfully', results3.rows[0]);
+                        }
+                      });
+                    });
+                  }
+                });
               });
             } else {
               return response(res, 'Wrong input Pin', null, null, 400);
@@ -121,12 +162,20 @@ exports.topUp = (req, res)=>{
   profileModel.getProfileByUserIdTf(recipient_id,(err, results1)=>{
     if(results1.rows.length > 0){
       const profile = results1.rows[0];
-      authModel.topUp(recipient_id, amount, type_id_trans, req.body, (err, results)=>{
-        if (err) {
-          return errorResponse(err, res);
-        } else {
-          return response(res, `TopUp is successfully, balance left: Rp.${parseInt(profile.balance) + parseInt(results.rows[0].amount)}`, results.rows[0]);
-        }
+      notifModel.getDataById(recipient_id, (err, resultNotifSend)=> {
+        authModel.topUp(recipient_id, amount, type_id_trans, req.body, (err, results)=>{
+          if (err) {
+            return errorResponse(err, res);
+          } else {
+            if (resultNotifSend.rows.length > 0) {
+              const message = {notification: {title: 'Top Up', body: `top up Rp.${amount} successfully`}};
+              admin.messaging().sendToDevice(resultNotifSend.rows[0].token, message, {priority: 'high'}).then(response => {
+                console.log(response);
+              }).catch(console.log('error'));
+            }
+            return response(res, `TopUp is successfully, balance left: Rp.${parseInt(profile.balance) + parseInt(results.rows[0].amount)}`, results.rows[0]);
+          }
+        });
       });
     } else {
       return response(res, 'Profile not found', null, null, 400);
@@ -173,7 +222,7 @@ exports.updateProfile = (req, res)=>{
           return errorResponse(res, `Failed to update: ${err.message}`, null, null, 400);
         }
         return response(res, 'Profile updated', results.rows[0]);
-      });;
+      });
     }
   });
 };
@@ -226,11 +275,11 @@ exports.editPin = (req, res)=>{
 
 exports.editPhonenumber = (req, res)=>{
   const user_id = parseInt(req.authUser.id);
-  profileModel.changePhoneNumber(user_id, req.body, (err)=>{
+  profileModel.changePhoneNumber(user_id, req.body, (err, results)=>{
     if (err) {
       return errorResponse(err, res);
     }else{
-      return response(res, 'Edit phonenumber successfully');
+      return response(res, 'Edit phonenumber successfully', results.rows[0]);
     }
   });
 };
@@ -279,9 +328,9 @@ exports.joinHistoryTransactions = (req, res)=>{
 
 exports.joinHistoryTransactionsMk2 = (req, res) => {
   const id = parseInt(req.authUser.id);
-  const {limit=parseInt(LIMIT_DATA), page=1} = req.query;
+  const {limit=parseInt(LIMIT_DATA), page=1, sort_by = 'DESC'} = req.query;
   const offset = (page - 1) * limit;
-  authModel.getJoinHistoryTransactionsMk2(id, limit, offset, (err, results)=>{
+  authModel.getJoinHistoryTransactionsMk2(id, limit, sort_by, offset, (err, results)=>{
     if (results.length < 1) {
       return res.redirect('/404');
     }
@@ -295,6 +344,49 @@ exports.joinHistoryTransactionsMk2 = (req, res) => {
       pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
       return response(res, 'List history Transaction User', results, pageInfo);
     });
+  });
+};
+
+exports.joinHistoryNotif = (req, res) => {
+  const id = parseInt(req.authUser.id);
+  const {limit=parseInt(LIMIT_DATA), page=1, sort_by = 'DESC'} = req.query;
+  const offset = (page - 1) * limit;
+  notifModel.getJoinNotifs(id, limit, sort_by, offset, (err, results)=>{
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    const pageInfo = {};
+
+    notifModel.getJoinNotifsCount(id, (err, totalData)=>{
+      pageInfo.totalData = totalData;
+      pageInfo.totalPage = Math.ceil(totalData/limit);
+      pageInfo.currentPage = parseInt(page);
+      pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
+      return response(res, 'List history Notifications User', results, pageInfo);
+    });
+  });
+};
+
+exports.countNotifications = (req, res) => {
+  const id = parseInt(req.authUser.id);
+  notifModel.getJoinNotifsCount(id, (err, totalData)=> {
+    if (totalData < 1) {
+      return res.redirect('/404');
+    } else {
+      return response(res, 'List history Notifications User', totalData);
+    }
+  });
+};
+
+exports.readNotification = (req, res) => {
+  const {id} = req.params;
+  notifModel.readNotif(id, (err, result) => {
+    if (result[0].is_read === true) {
+      return response(res, 'Notification already read', null, null, 404);
+    } else {
+      return response(res, 'Notification read', result);
+    }
   });
 };
 
@@ -347,5 +439,16 @@ exports.getProfileById = (req, res)=>{
   const {user_id} = req.params;
   authModel.getProfileById(user_id, (results)=>{
     return response(res, 'Profile search', results);
+  });
+};
+
+exports.getInfoTokenBytId = (req, res) => {
+  const {user_id} = req.params;
+  notifModel.getDataById(user_id, (err, results)=> {
+    if (results.rows.length < 1) {
+      return res.redirect('/404');
+    }else{
+      return response(res, 'user id notif exits', results.rows[0]);
+    }
   });
 };

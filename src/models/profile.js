@@ -83,8 +83,8 @@ exports.getProfileById = (id, cb)=>{
   const q = 'SELECT * FROM profile WHERE id=$1';
   const val = [id];
   db.query(q, val, (err, res)=>{
-    console.log(res);
-    cb(res);
+    // console.log(res);
+    cb(err, res);
   });
 };
 
@@ -189,7 +189,7 @@ exports.updateProfileName = (user_id, first_name, last_name, cb)=>{
 
 
 exports.changePhoneNumber = (user_id, data, cb)=>{
-  const q = 'UPDATE profile SET phonenumber=$1 WHERE user_id=$2';
+  const q = 'UPDATE profile SET phonenumber=$1 WHERE user_id=$2 RETURNING phonenumber';
   const val = [data.phonenumber, user_id];
   db.query(q, val, (err, res)=>{
     if (res) {
