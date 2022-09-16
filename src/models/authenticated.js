@@ -185,7 +185,7 @@ exports.getCountJoinHistoryTransactions = (id, cb)=>{
 };
 
 exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), sort_by, offset=0, cb) => {
-  const q = `SELECT transactions.id, t3.name type, amount, t4.user_id receiverId, t4.first_name receiverFirstName, t4.last_name receiverLastName, t4.phonenumber phonenumberReceiver, t4.picture imgReceiver, t5.first_name senderFirstName, t5.last_name senderLastName, t5.picture imgSender, t5.phonenumber phonenumberSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ${sort_by} LIMIT $1 OFFSET $2`;
+  const q = `SELECT transactions.id, t3.name type, amount, note, t4.user_id receiverId, t4.first_name receiverFirstName, t4.last_name receiverLastName, t4.phonenumber phonenumberReceiver, t4.picture imgReceiver, t5.first_name senderFirstName, t5.last_name senderLastName, t5.picture imgSender, t5.phonenumber phonenumberSender, time FROM transactions FULL OUTER JOIN users t1 ON t1.id = transactions.recipient_id FULL OUTER JOIN users t2 on t2.id = transactions.sender_id FULL OUTER JOIN transaction_type t3 on t3.id = transactions.type_id_trans FULL OUTER JOIN profile t4 on t4.user_id = transactions.recipient_id FULL OUTER JOIN profile t5 on t5.user_id = transactions.sender_id WHERE transactions.recipient_id = ${id} OR transactions.sender_id = ${id} ORDER BY time ${sort_by} LIMIT $1 OFFSET $2`;
   const val = [limit, offset];
   db.query(q, val, (err, res)=>{
     if (res) {
@@ -196,16 +196,16 @@ exports.getJoinHistoryTransactionsMk2 = (id, limit=parseInt(LIMIT_DATA), sort_by
   });
 };
 
-exports.searchSortUsers = (search, sort, limit=parseInt(LIMIT_DATA), offset=0, cb)=> {
-  db.query(`SELECT id, user_id, first_name, last_name, phonenumber, picture FROM profile WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%' ORDER BY lower(${sort}) ASC LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
+exports.searchSortUsers = (search, sort, limit=parseInt(LIMIT_DATA), offset=0, id, cb)=> {
+  db.query(`SELECT id, user_id, first_name, last_name, phonenumber, picture FROM profile WHERE (first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%') AND user_id != ${id} ORDER BY lower(${sort}) ASC LIMIT $1 OFFSET $2`, [limit, offset], (err, res)=>{
     cb(res.rows);
   });
 };
 
 // option lower(${sort})
 
-exports.countSearchSortUsers = (search, cb)=> {
-  db.query(`SELECT * FROM profile WHERE first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%'`, (err, res)=>{
+exports.countSearchSortUsers = (search, id, cb)=> {
+  db.query(`SELECT * FROM profile WHERE (first_name ILIKE '%${search}%' OR last_name ILIKE '%${search}%' OR phonenumber ILIKE '%${search}%') AND user_id != ${id}`, (err, res)=>{
     cb(err, res.rowCount);
   });
 };

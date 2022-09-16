@@ -12,15 +12,17 @@ authenticated.get('/joinUserAndProfile', authMiddelware, authenticatedController
 authenticated.get('/joinTransactions', authMiddelware, authenticatedController.joinHistoryTransactions);
 authenticated.get('/joinTransactionsJoin', authMiddelware, authenticatedController.joinHistoryTransactionsMk2);
 authenticated.get('/joinTNotificationJoin', authMiddelware, authenticatedController.joinHistoryNotif);
+authenticated.get('/getAllNotif', authMiddelware, authenticatedController.getAllNotifs);
 authenticated.get('/countNotifications', authMiddelware, authenticatedController.countNotifications);
 authenticated.patch('/readNotification/:id', authMiddelware, authenticatedController.readNotification);
+authenticated.patch('/readAllNotifs', authMiddelware, authenticatedController.readAllNotif);
 // not work yet
 authenticated.get('/historyTransactions', authMiddelware, authenticatedController.historyTransactions);
 // not work yet
 
 // get all profile/user
 authenticated.get('/getAllUsers', authMiddelware, authenticatedController.searchSortProfile);
-authenticated.get('/getAllUsersMk', authenticatedController.searchSortProfileMk2);
+authenticated.get('/getAllUsersMk', authMiddelware, authenticatedController.searchSortProfileMk2);
 authenticated.get('/getUserById/:user_id', authenticatedController.getProfileById);
 authenticated.get('/getDataTokenById/:user_id', authenticatedController.getInfoTokenBytId);
 // get all profile/user

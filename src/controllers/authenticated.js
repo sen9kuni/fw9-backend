@@ -368,6 +368,27 @@ exports.joinHistoryNotif = (req, res) => {
   });
 };
 
+exports.getAllNotifs = (req, res) => {
+  const id = parseInt(req.authUser.id);
+  const {sort_by = 'DESC'} = req.query;
+  notifModel.getAllNotifs(id, sort_by, (err, results) => {
+    if (results.length < 1) {
+      return res.redirect('/404');
+    }
+    return response(res, 'all list notifications user', results);
+  });
+};
+
+exports.readAllNotif = (req, res) => {
+  const id = parseInt(req.authUser.id);
+  notifModel.readAllNotifs(id, (err) => {
+    if (err) {
+      return errorResponse(res, 'Failed to read all your notifications', null, null, 400);
+    }
+    return response(res, 'read all your notifications');
+  });
+};
+
 exports.countNotifications = (req, res) => {
   const id = parseInt(req.authUser.id);
   notifModel.getJoinNotifsCount(id, (err, totalData)=> {
@@ -412,10 +433,11 @@ exports.searchSortProfile = (req, res) => {
 };
 
 exports.searchSortProfileMk2 = (req, res)=> {
+  const id = parseInt(req.authUser.id);
   const {search = '', sort = 'first_name', limit=parseInt(LIMIT_DATA), page=1} = req.query;
 
   const offset = (page - 1) * limit;
-  authModel.searchSortUsers(search, sort, limit, offset, (results)=>{
+  authModel.searchSortUsers(search, sort, limit, offset, id, (results)=>{
     // if (results === undefined) {
     //   return res.redirect('/404');
     // } else
@@ -424,12 +446,12 @@ exports.searchSortProfileMk2 = (req, res)=> {
     }
     const pageInfo = {};
 
-    authModel.countSearchSortUsers(search, (err, totalData)=>{
+    authModel.countSearchSortUsers(search, id, (err, totalData)=>{
       pageInfo.totalData = totalData;
       pageInfo.totalPage = Math.ceil(totalData/limit);
       pageInfo.currentPage = parseInt(page, 10);
       pageInfo.nextPage = pageInfo.currentPage < pageInfo.totalPage ? pageInfo.currentPage + 1 : null;
-      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo - 1 : null;
+      pageInfo.prevPage = pageInfo.currentPage > 1 ? pageInfo.currentPage - 1 : null;
       return response(res, 'List all Profile search', results, pageInfo);
     });
   });
