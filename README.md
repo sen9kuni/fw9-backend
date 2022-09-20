@@ -13,6 +13,7 @@ A backend program for Boo-Wallet E-wallet
 ### note:
 - some endpoint not working because adjustment for auth and authenticated
 - change serviceAccount on `./src/helpers/firebaseNotif.js` with your own firebase json, without that this backend won't running
+- file postman at folder postman collection 
 
 
 ## Build with
