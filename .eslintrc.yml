@@ -16,5 +16,5 @@ rules:
     - error
     - single
   semi:
-    - error
+    - never
     - always

@@ -1,11 +1,11 @@
-const profile = require('express').Router();
+const profile = require('express').Router()
 
-const profileControllers = require('../controllers/profile');
+const profileControllers = require('../controllers/profile')
 
-const { body } = require('express-validator');
-const profileValidatorRules = require('./validator/validatorProfile');
-const uploadProfile = require('../middleware/uploadProfile');
-const validation = require('../middleware/validation');
+const { body } = require('express-validator')
+const profileValidatorRules = require('./validator/validatorProfile')
+const uploadProfile = require('../middleware/uploadProfile')
+const validation = require('../middleware/validation')
 
 // var validator
 // const createProfileValidator = [
@@ -19,14 +19,14 @@ const validation = require('../middleware/validation');
 // ];
 // end var validator
 
-profile.get('/', body('limit').toInt(), body('page').toInt(), profileControllers.searchSortProfile);
-profile.get('/:id', profileControllers.getProfileById);
+profile.get('/', body('limit').toInt(), body('page').toInt(), profileControllers.searchSortProfile)
+profile.get('/:id', profileControllers.getProfileById)
 
 // base create
 // profile.post('/', ...createProfileValidator, profileControllers.createProfile);
 
 // experiment create
-profile.post('/', uploadProfile, ...profileValidatorRules, profileControllers.createProfile);
+profile.post('/', uploadProfile, ...profileValidatorRules, profileControllers.createProfile)
 
 // base
 // profile.patch('/:id', ...editProfileValidator, profileControllers.editProfile);
@@ -36,9 +36,9 @@ profile.post('/', uploadProfile, ...profileValidatorRules, profileControllers.cr
 // experiment
 
 // experiment mk 2
-profile.patch('/:id',uploadProfile, ...profileValidatorRules,validation, profileControllers.editProfile);
+profile.patch('/:id', uploadProfile, ...profileValidatorRules, validation, profileControllers.editProfile)
 // experiment mk 2
 
-profile.delete('/:id', profileControllers.deleteProfile);
+profile.delete('/:id', profileControllers.deleteProfile)
 
-module.exports = profile;
+module.exports = profile
