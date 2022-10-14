@@ -1,9 +1,9 @@
 // const path = require('path');
 // const multer = require('multer');
 
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinaryUpload = require('./cloudinary');
+const multer = require('multer')
+const { CloudinaryStorage } = require('multer-storage-cloudinary')
+const cloudinaryUpload = require('./cloudinary')
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -23,22 +23,22 @@ const storage = new CloudinaryStorage({
     format: async (req, file) => 'png',
     public_id: (req, file) => new Date().getTime()
   }
-});
+})
 
 const upload = multer({
   storage,
   limits: {
-    fileSize : 1 * 1000 * 1000
+    fileSize: 1 * 1000 * 1000
   },
-  fileFilter: (req, file, cb)=>{
-    const allowExt = ['image/jpg', 'image/png', 'image/jpeg'];
-    if(allowExt.includes(file.mimetype)){
-      cb(null, true);
+  fileFilter: (req, file, cb) => {
+    const allowExt = ['image/jpg', 'image/png', 'image/jpeg']
+    if (allowExt.includes(file.mimetype)) {
+      cb(null, true)
     } else {
-      const err = new Error('Extension not supported');
-      cb(err, false);
+      const err = new Error('Extension not supported')
+      cb(err, false)
     }
   }
-});
+})
 
-module.exports = upload;
+module.exports = upload

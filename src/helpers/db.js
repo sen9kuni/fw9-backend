@@ -1,9 +1,9 @@
-const {Pool} = require('pg');
+const { Pool } = require('pg')
 
-const {DATABASE_URL: connectionString} = process.env;
+const { DATABASE_URL: connectionString } = process.env
 
 const db = new Pool({
   connectionString
-});
+})
 
-module.exports = db;
+module.exports = db
