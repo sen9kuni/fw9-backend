@@ -1,4 +1,4 @@
-# Boo-Wallet E-wallet Backend
+# E-wallet Backend
 ## About 
 A backend program for Boo-Wallet E-wallet
 
